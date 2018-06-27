@@ -20,10 +20,26 @@ suppressMessages((
   )
 ))
 
-portfolio <- cbind(TSLA$TSLA.Close, SPY$SPY.Close, TLT$TLT.Close,GLD$GLD.Close)
+portfolio <-
+  cbind(TSLA$TSLA.Close, SPY$SPY.Close, TLT$TLT.Close, GLD$GLD.Close)
 d_portfolio <- diff(portfolio)
 # Stocks to Bonds ####
-Risk_Premium <- TLT$TLT.Close/SPY$SPY.Close
+Risk_Premium <- TLT$TLT.Close / SPY$SPY.Close
 
 plot.zoo(Risk_Premium)
-abline(h=1)
+abline(h = 1)
+
+# Example Portfolio ####
+values <- c(38396, 595, 21525, 55850, 9545, 5900)
+names <- c("cash", "CTL", "COST", "DTO", "HSY", "TUES")
+weights <- values / sum(values)
+
+portfolio <- as.data.frame(cbind(values, weights), row.names = names)
+summary(portfolio)
+barplot(
+  portfolio$weights,
+  main = "Portfolio Weights",
+  ylab = "Percent of Portfolio",
+  xlab = "Instrument",
+  names.arg = names
+)
