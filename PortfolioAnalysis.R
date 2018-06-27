@@ -7,6 +7,7 @@ library(PerformanceAnalytics)
 # Clear plots and environment
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
+Sys.setenv(TZ='UTC')
 
 # Variables ####
 instruments <- c("TSLA", "SPY", "TLT", "GLD")
@@ -30,11 +31,13 @@ plot.zoo(Risk_Premium)
 abline(h = 1)
 
 # Example Portfolio ####
-values <- c(38396, 595, 21525, 55850, 9545, 5900)
-names <- c("cash", "CTL", "COST", "DTO", "HSY", "TUES")
-weights <- values / sum(values)
+names <- c("CTL", "COST", "DTO", "HSY", "TUES")
+qty <- c(31.787, 102.249, 1000, 101.443, 2000)
+quotes <- getQuote(names, src = "yahoo")
+dollar_value <- qty * quotes$Last
+weights <- round((dollar_value/sum(dollar_value)*100),2)
+portfolio <- as.data.frame(cbind(dollar_value, weights), row.names = names)
 
-portfolio <- as.data.frame(cbind(values, weights), row.names = names)
 summary(portfolio)
 barplot(
   portfolio$weights,
