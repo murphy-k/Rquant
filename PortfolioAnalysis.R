@@ -26,3 +26,4 @@ d_portfolio <- diff(portfolio)
 Risk_Premium <- TLT$TLT.Close/SPY$SPY.Close
 
 plot.zoo(Risk_Premium)
+abline(h=1)
