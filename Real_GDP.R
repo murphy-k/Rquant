@@ -19,4 +19,3 @@ plot.xts(pctchg_GDP,
 
 hist(pctchg_GDP, probability = TRUE, main = "GDP %-Chg Distribution")
 lines(density(pctchg_GDP, na.rm = TRUE), col = "red")
-

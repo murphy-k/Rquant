@@ -22,20 +22,11 @@ suppressMessages((
 ))
 
 # Example Portfolio ####
-<<<<<<< HEAD
 qty <- c(31.787, 102.249, 1000, 101.443, 2000)
 quotes <- getQuote(tickers, src = "yahoo")
 dollar_value <- qty * quotes$Last
 weights <- round((dollar_value/sum(dollar_value)*100),2)
 portfolio <- as.data.frame(cbind(dollar_value, weights), row.tickers = tickers)
-=======
-names <- c("CTL", "COST", "DTO", "HSY", "TUES")
-qty <- c(31.787, 102.249, 1000, 101.443, 2000)
-quotes <- getQuote(names, src = "yahoo")
-dollar_value <- qty * quotes$Last
-weights <- round((dollar_value/sum(dollar_value)*100),2)
-portfolio <- as.data.frame(cbind(dollar_value, weights), row.names = names)
->>>>>>> 787daa8d66e2eb97bb1a9a2e778a3b2fd6abf2f1
 
 summary(portfolio)
 barplot(
