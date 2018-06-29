@@ -1,9 +1,6 @@
 # Packages ####
 library(quantmod)
-library(zoo)
-library(xts)
-library(PerformanceAnalytics)
-
+library(PortfolioAnalytics)
 # Clear plots and environment
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])

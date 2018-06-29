@@ -1,6 +1,4 @@
-library(xts)
-library(zoo)
-library(PerformanceAnalytics)
+library(PortfolioAnalytics)
 library(TTR)
 library(magrittr)
 # Clear plots and environment
