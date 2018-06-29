@@ -35,4 +35,4 @@ barplot(
   ylab = "Percent of Portfolio",
   xlab = "Instrument",
   names.arg = tickers)
-  
+
