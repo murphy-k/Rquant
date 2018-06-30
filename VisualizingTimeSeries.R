@@ -1,6 +1,6 @@
 # Packages ####
 library(quantmod)
-library(PerformanceAnalytics)
+library(PortfolioAnalytics)
 
 # Clear plots and environment
 rm(list = ls())

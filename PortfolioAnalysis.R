@@ -21,9 +21,9 @@ suppressMessages((
 # Example Portfolio ####
 qty <- c(31.787, 102.249, 1000, 101.443, 2000)
 quotes <- getQuote(tickers, src = "yahoo")
-dollar_value <- qty * quotes$Last
-weights <- round((dollar_value/sum(dollar_value)*100),2)
-portfolio <- as.data.frame(cbind(dollar_value, weights), row.tickers = tickers)
+dollar_values <- qty * quotes$Last
+weights <- round((dollar_values/sum(dollar_values)*100),2)
+portfolio <- as.data.frame(cbind(dollar_values, weights), row.tickers = tickers)
 
 summary(portfolio)
 barplot(
@@ -32,4 +32,4 @@ barplot(
   ylab = "Percent of Portfolio",
   xlab = "Instrument",
   names.arg = tickers)
-
+cat("Total Value of Equities =  $", (sum(dollar_values)))
