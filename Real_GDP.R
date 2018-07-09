@@ -1,26 +1,39 @@
 library(PortfolioAnalytics)
 library(TTR)
 library(magrittr)
+library(Quandl)
 # Clear plots and environment
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Data Download ####
-GDP <-
-  as.data.frame(readr::read_csv("~/Downloads/GDPC1/Quarterly.csv"))
-GDP_xts <- as.xts(GDP[, -1], order.by = GDP[, 1])
-
-M2_velocity <- as.data.frame(readr::read_csv("~/Downloads/M2V.csv"))
-M2_velocity_xts <-
-  as.xts(M2_velocity[, -1], order.by = M2_velocity[, 1])
-
+GDP <- getSymbols("GDPC1",
+                  src = "FRED",
+                  auto.assign = FALSE)
+M2 <- getSymbols("M2V",
+                 src = "FRED",
+                 auto.assign = FALSE)
+Prob_Recession <- getSymbols("RECPROUSM156N",
+                             src = "FRED",
+                             auto.assign = FALSE)
 
 # Visualize ####
-plot.xts(GDP_xts)
-pctchg_GDP <- na.trim(ROC(GDP_xts, n = 1) * 100)
+plot.xts(GDP, grid.ticks.on = "years")
+plot.xts(M2, grid.ticks.on = "years")
+plot.xts(Prob_Recession, grid.ticks.on = "years",
+         subset = "1999::2018")
 
+pctchg_GDP <- na.trim(ROC(GDP, n = 1) * 100)
+pctchg_M2 <- na.trim(ROC(M2, n = 1) * 100)
 plot.xts(
   pctchg_GDP,
+  type = "h",
+  up.col = "black",
+  dn.col = "red",
+  grid.ticks.on = "years"
+)
+plot.xts(
+  pctchg_M2,
   type = "h",
   up.col = "black",
   dn.col = "red",
