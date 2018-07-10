@@ -1,6 +1,5 @@
 library(PortfolioAnalytics)
 library(TTR)
-library(magrittr)
 library(Quandl)
 # Clear plots and environment
 rm(list = ls())
@@ -49,11 +48,7 @@ chart.Histogram(
 
 quantmod::getSymbols(Symbols = "SPY",
                      src = "yahoo",
-                     from = "2000-01-01")
-SPY$SPY.Close %>%
-  ROC(n = 1) %>% summary()
-chart.Histogram(
-  probability = TRUE,
-  show.outliers = TRUE,
-  methods = c("add.normal", "add.density")
-)
+                     from = "2018-01-01")
+pctchg_SPY <- ROC(SPY$SPY.Close, n=1)
+plot(x = pctchg_SPY)
+
