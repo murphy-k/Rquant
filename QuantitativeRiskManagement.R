@@ -4,6 +4,8 @@ library(qrmdata)
 library(qrmtools)
 library(Quandl)
 library(moments)
+library(QRM)
+
 
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
@@ -48,12 +50,17 @@ qqnorm(x1)
 qqline(x1, col = "red")
 
 # Moments ####
-# Calculate skewness and kurtosis of djx
-skewness(DJI)
-kurtosis(DJI)
+# Calculate skewness and kurtosis of dj_returns
+skewness(dj_returns)
+kurtosis(dj_returns)
+# Carry out a Jarque-Bera test for dj_returns
+jarque.test(as.vector(dj_returns))
 
-# Carry out a Jarque-Bera test for djx
-jarque.test(as.vector(DJI))
+# student t dist ####
+tfit <- fit.st(dj_returns)
 
-# Carry out Jarque-Bera tests for each constituent in djreturns
-apply(dj_returns, 2, jarque.test)
+# Define tpars, nu, mu, and sigma
+tpars <- tfit$par.ests
+nu <- tpars[1]
+mu <- tpars[2]
+sigma <- tpars[3]
