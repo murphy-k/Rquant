@@ -3,6 +3,7 @@ library(quantmod)
 library(qrmdata)
 library(qrmtools)
 library(Quandl)
+library(moments)
 
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
@@ -27,22 +28,32 @@ plot.zoo(x_coms,plot.type = "multiple", type = "h")
 pairs(as.zoo(x_coms))
 
 # Calculate average and standard deviation of DJI
-d_DJI <- dailyReturn(DJI)
-mu <- mean(d_DJI)
-sigma <- sd(d_DJI)
-plot(d_DJI, type = "h")
+dj_returns <- dailyReturn(DJI)
+mu <- mean(dj_returns)
+sigma <- sd(dj_returns)
+plot(dj_returns, type = "h")
 
-hist(d_DJI, nclass = 20, probability = TRUE)
-plot(density(d_DJI))
+hist(dj_returns, nclass = 20, probability = TRUE)
+plot(density(dj_returns))
 
-# Make a Q-Q plot of d_DJI and add a red line
-qqnorm(d_DJI)
-qqline(d_DJI, col = "red")
+# Make a Q-Q plot of dj_returns and add a red line
+qqnorm(dj_returns)
+qqline(dj_returns, col = "red")
 
-# Calculate the length of d_DJI as n
-n <- length(d_DJI)
+# Calculate the length of dj_returns as n
+n <- length(dj_returns)
 # Generate n standard normal variables, make a Q-Q plot, add a red line
 x1 <- rnorm(n)
 qqnorm(x1)
 qqline(x1, col = "red")
 
+# Moments ####
+# Calculate skewness and kurtosis of djx
+skewness(DJI)
+kurtosis(DJI)
+
+# Carry out a Jarque-Bera test for djx
+jarque.test(as.vector(DJI))
+
+# Carry out Jarque-Bera tests for each constituent in djreturns
+apply(dj_returns, 2, jarque.test)
