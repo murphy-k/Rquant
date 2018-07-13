@@ -49,6 +49,5 @@ chart.Histogram(
 quantmod::getSymbols(Symbols = "SPY",
                      src = "yahoo",
                      from = "2018-01-01")
-pctchg_SPY <- ROC(SPY$SPY.Close, n=1)
+pctchg_SPY <- ROC(SPY$SPY.Close, n = 1)
 plot(x = pctchg_SPY)
-

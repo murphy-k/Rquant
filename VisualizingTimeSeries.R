@@ -18,7 +18,8 @@ suppressMessages((
   )
 ))
 
-portfolio <- cbind(TSLA$TSLA.Close, SPY$SPY.Close, TLT$TLT.Close,GLD$GLD.Close)
+portfolio <-
+  cbind(TSLA$TSLA.Close, SPY$SPY.Close, TLT$TLT.Close, GLD$GLD.Close)
 d_portfolio <- diff(portfolio)
 # Basic Syntax ####
 head(SPY)

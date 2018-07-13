@@ -26,7 +26,7 @@ OIL <-
 colnames(OIL) <- 'WTI.Close'
 coms <- cbind(GLD["2017"], OIL["2017"])
 x_coms <- diff(log(coms))
-plot.zoo(x_coms,plot.type = "multiple", type = "h")
+plot.zoo(x_coms, plot.type = "multiple", type = "h")
 pairs(as.zoo(x_coms))
 
 # Calculate average and standard deviation of DJI
