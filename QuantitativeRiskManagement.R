@@ -64,3 +64,5 @@ tpars <- tfit$par.ests
 nu <- tpars[1]
 mu <- tpars[2]
 sigma <- tpars[3]
+
+# VaR ####
