@@ -43,14 +43,13 @@ plot(TLT$TLT.Close, main = "Bonds")
 par(mfrow = c(1, 1)) # reset parameters for plot()
 
 # Histograms ####
-
-hist(
-  diff(SPY$SPY.Close),
+roc_SPY <- ROC(SPY$SPY.Close)
+hist(roc_SPY,
   main = "SPY Returns Histogram",
   xlab = "Percent Return",
   ylab = "Percent Occurence",
   probability = TRUE,
-  breaks = 50
+  breaks = 36
 )
 plot(density(d_portfolio, na.rm = TRUE))
 # Correlation ####
