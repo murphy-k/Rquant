@@ -7,7 +7,7 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Variable Handling ####
-instruments <- c("TSLA", "SPY", "TLT", "GLD")
+instruments <- c("SPY", "TLT", "GLD")
 start_date <- "2017-01-01"
 suppressMessages((
   getSymbols(
@@ -19,7 +19,7 @@ suppressMessages((
 ))
 
 portfolio <-
-  cbind(TSLA$TSLA.Close, SPY$SPY.Close, TLT$TLT.Close, GLD$GLD.Close)
+  cbind(SPY$SPY.Close, TLT$TLT.Close, GLD$GLD.Close)
 d_portfolio <- diff(portfolio)
 # Basic Syntax ####
 head(SPY)
