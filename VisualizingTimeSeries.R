@@ -44,7 +44,8 @@ par(mfrow = c(1, 1)) # reset parameters for plot()
 
 # Histograms ####
 roc_SPY <- ROC(SPY$SPY.Close)
-hist(roc_SPY,
+hist(
+  roc_SPY,
   main = "SPY Returns Histogram",
   xlab = "Percent Return",
   ylab = "Percent Occurence",

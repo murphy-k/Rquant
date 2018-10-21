@@ -67,7 +67,9 @@ sigma <- tpars[3]
 
 # VaR ####
 # Make a sequence of 100 x-values going from -4*sigma to 4*sigma
-xvals <- seq(from = -4*sigma, to = 4*sigma, length.out = 100)
+xvals <- seq(from = -4 * sigma,
+             to = 4 * sigma,
+             length.out = 100)
 
 # Compute the density of a N(mu, sigma^2) distribution at xvals
 ndens <- dnorm(xvals, mean = mu, sd = sigma)
