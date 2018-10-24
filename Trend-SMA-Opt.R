@@ -1,18 +1,25 @@
 # Trading Strategy: Trend-Following
 # Technical Indicators: Fast and Slow SMA
 # Optimization/Walk Forward Analysis: Yes/No
+
 # Setup ####
 library("quantstrat")
+
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
+init.portf <- '2016-12-31'
+start.date <- '2017-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 position_size <- 100
 enable_stops <- FALSE
+init_stopLoss <- 0.05
+trail_stopLoss <- 0.07
+tx_fees <- -10.00
+fast_sma_params <- c(2, 5, 10, 15, 20)
+slow_sma_params <- c(12, 26, 50, 70, 100)
 
 getSymbols(
   Symbols = "SPY",
@@ -30,20 +37,15 @@ stock(primary_id = "SPY",
 
 # Strategy ####
 opt.trend1.strat <- "OptTrendStrat1"
-
 # 4.2. Clear Strategy Data
 rm.strat(opt.trend1.strat)
-
 # 4.3. Strategy Object
 strategy(name = opt.trend1.strat, store = TRUE)
-
 # 4.4. Completed Strategy Object
 summary(getStrategy(opt.trend1.strat))
 
 # 5. Strategy Definition
-
 # 5.1. Add Strategy Indicator
-
 # 5.1.1. Add Fast SMA
 add.indicator(
   strategy = opt.trend1.strat,
@@ -60,7 +62,6 @@ add.indicator(
 )
 
 # 5.2. Add Strategy Signals
-
 # 5.2.1. Add Buying Signal
 add.signal(
   strategy = opt.trend1.strat,
@@ -83,7 +84,6 @@ add.signal(
 )
 
 # 5.3. Add Strategy Rules
-
 # 5.3.1. Add Enter Rule
 add.rule(
   strategy = opt.trend1.strat,
@@ -108,7 +108,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = init_stopLoss,
     orderside = 'long'
   ),
   type = 'chain',
@@ -124,7 +124,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = trail_stopLoss,
     orderside = 'long'
   ),
   type = 'chain',
@@ -132,7 +132,6 @@ add.rule(
   parent = "EnterRule",
   enabled = enable_stops
 )
-
 # 5.3.2. Add Exit Rule
 add.rule(
   strategy = opt.trend1.strat,
@@ -143,7 +142,7 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees = -6
+    TxnFees = tx_fees
   ),
   type = 'exit',
   label = "ExitRule",
@@ -151,16 +150,14 @@ add.rule(
 )
 
 # 5.4. Add Strategy Distributions
-
 # 5.4.1. Add SMA Parameters Combinations
-
 # Fast SMA
 add.distribution(
   strategy = opt.trend1.strat,
   paramset.label = 'OptTrendPar1',
   component.type = 'indicator',
   component.label = 'FastSMA',
-  variable = list(n = c(2, 5, 10, 15, 20)),
+  variable = list(n = fast_sma_params),
   label = 'nFastSMA'
 )
 # Slow SMA
@@ -169,21 +166,17 @@ add.distribution(
   paramset.label = 'OptTrendPar1',
   component.type = 'indicator',
   component.label = 'SlowSMA',
-  variable = list(n = c(12, 26, 50, 70, 100)),
+  variable = list(n = slow_sma_params),
   label = 'nSlowSMA'
 )
 
 # 5.4. Completed Strategy Object
 summary(getStrategy(opt.trend1.strat))
-
 # 6. Portfolio Initialization
-
 # 6.1. Portfolio Names
 opt.trend1.portf <- "OptTrendPort1"
-
 # 6.2. Clear Portfolio Data
 rm.strat(opt.trend1.portf)
-
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
           symbols = "SPY",
@@ -201,7 +194,6 @@ initAcct(
 initOrders(portfolio = opt.trend1.portf, initDate = init.portf)
 
 # 7. Strategy Optimization
-
 # 7.1. Strategy Optimization Results
 opt.trend1.results <-
   apply.paramset(
@@ -214,11 +206,9 @@ opt.trend1.results <-
   )
 
 # 7.2. Strategy Optimization Trading Statistics
-
 # 7.2.1. Strategy Optimization General Trade Statistics
 all.trend1.stats <- opt.trend1.results$tradeStats
 View(t(all.trend1.stats))
-
 # 7.2.2. Strategy Optimization Net Trading PL
 plot(
   x = all.trend1.stats$Portfolio,
@@ -245,4 +235,3 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-
