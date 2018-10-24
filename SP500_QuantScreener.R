@@ -11,45 +11,50 @@ library(forcats)    # working with factors
 library(lubridate)  # working with dates in tibble / data frames
 library(plotly)     # interactive plots
 library(corrplot)   # visualizing correlation plots
-options(scipen = 999)
+
 # Symbol D/L ####
 # Downloading symbols using quantmod package and viewing the instrument
 getSymbols(
-  "AAPL",
+  "SPY",
   src = "yahoo",
   auto.assign = TRUE,
-  from = "2007-01-01",
+  from = Sys.Date() - 7306,
   to = Sys.Date()
 )
 # Understanding the class and structure of our object
-AAPL %>% class()
-AAPL %>% str()
-AAPL %>% head()
+SPY %>% class()
+SPY %>% str()
+SPY %>% head()
 
-# Visualizing the AAPL price over time
-AAPL %>%
-  chartSeries(TA = "addBBands();
+# Visualizing the SPY price over time
+SPY %>%
+  chartSeries(TA = "addBBands(200);
               addVo();
               addMACD()",
-              subset = "2018",
+              subset = "2016::",
               theme = "white")
-#  Calculating the logarithmic returns of AAPL
-AAPL %>%
+#  Calculating the logarithmic returns of SPY
+SPY %>%
   Ad() %>%
   dailyReturn(type = "log") %>%
   head()
 
-log_returns <- AAPL %>%
+log_returns <- SPY %>%
   Ad() %>%
   dailyReturn(type = "log")
 names(log_returns) <- "Log.Returns"
-# Visualize a histogram and density of AAPL.Log.Returns
-log_returns %>%
+# Visualize a histogram and density of SPY.Log.Returns
+(log_returns * 100) %>%
   ggplot(aes(x = Log.Returns)) +
   geom_histogram(bins = 100) +
   geom_density() +
-  geom_rug(alpha = 0.5)
-
+  geom_rug(alpha = 0.5) + ggtitle("'SPY' Log-% Returns ")
+# What is the maximum log return
+max(log_returns)
+# Given the maximum, where is it located within the xts
+which(log_returns == max(log_returns))
+log_returns[2510,]
+chartSeries(x = SPY, subset = "2008-08::2008-10-13")
 # Examine the distribution of the log returns with quantile()
 probs <- c(.005, .025, .25, .5, .75, .975, .995)
 dist_log_returns <- log_returns %>%
@@ -78,8 +83,8 @@ N <- 1000
 mu <- mean_log_returns
 sigma <- sd_log_retuns
 day <- 1:N
-price_init <- AAPL$AAPL.Adjusted[[nrow(AAPL$AAPL.Adjusted)]]
-AAPL$AAPL.Adjusted[[nrow(AAPL$AAPL.Adjusted)]]
+price_init <- SPY$SPY.Adjusted[[nrow(SPY$SPY.Adjusted)]]
+SPY$SPY.Adjusted[[nrow(SPY$SPY.Adjusted)]]
 # Simulate prices
 set.seed(1)
 price <- c(price_init, rep(NA, N - 1))
@@ -93,14 +98,14 @@ price_sim <- cbind(day, price) %>%
 price_sim %>%
   ggplot(aes(day, price)) +
   geom_line() +
-  ggtitle(str_c("AAPL: Simulated Prices for ", N, " Trading Days"))
+  ggtitle(str_c("SPY: Simulated Prices for ", N, " Trading Days"))
 
 # Monte Carlo Simulation ####
 # We repeatedly perform the random walk process simulation many times
 
 # Monte Carlo Parameters
 N <- 252 # number of days to simulate
-M <- 300 # number of monte carlo simulations
+M <- 252 # number of monte carlo simulations
 
 # Simulate prices
 set.seed(1)
@@ -125,7 +130,7 @@ price_sim %>%
   ggplot(aes(x = Day, y = Stock.Price, Group = Simulation)) +
   geom_line(alpha = 0.05) +
   ggtitle(str_c(
-    "AAPL: ",
+    "SPY: ",
     M,
     " Monte Carlo Simulations for Prices Over ",
     N,
@@ -141,9 +146,9 @@ dist_end_stock_prices %>% round(2)
 
 # CAGR Comparison ####
 # Inputs
-N_hist <- nrow(AAPL) / 252
-p_start_hist <- AAPL$AAPL.Adjusted[[1]]
-p_end_hist <- AAPL$AAPL.Adjusted[[nrow(AAPL)]]
+N_hist <- nrow(SPY) / 252
+p_start_hist <- SPY$SPY.Adjusted[[1]]
+p_end_hist <- SPY$SPY.Adjusted[[nrow(SPY)]]
 N_sim <- N / 252
 p_start_sim <- p_end_hist
 p_end_sim <- dist_end_stock_prices[[4]]
@@ -223,11 +228,14 @@ get_stock_prices <-
     }
     stock_prices
   }
-"AAPL" %>%
+"SPY" %>%
   get_stock_prices(return_format = "xts") %>%
   head()
-"AAPL" %>%
+"SPY" %>%
   get_stock_prices(return_format = "tibble") %>%
+  head()
+"SPY" %>%
+  get_stock_prices() %>%
   head()
 # Notice that instead of creating an object in the global environment, an
 # object was created as a local variable and immediately output to the screen.
