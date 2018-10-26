@@ -18,11 +18,11 @@ hdata <-
   Quandl(htickers,
          type = "xts",
          start_date = "2007-01-01",
-         end_date = "2017-01-01")
+         end_date = Sys.Date())
 getSymbols(htickers2,
            src = 'yahoo',
            from = "2007-01-01",
-           to = "2017-01-01")
+           to = Sys.Date())
 hdata <- cbind(GSPC[, 1:4], hdata)
 hdata <- hdata[complete.cases(hdata), ]
 
@@ -294,3 +294,4 @@ uivol <- ifcst[62:2518, 1]
 
 # 5.2.2. Calculate Implied Volatility Forecasting Accuracy
 accuracy(uivol, uhvolcc2)
+
