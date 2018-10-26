@@ -9,15 +9,15 @@ Sys.setenv(TZ = 'UTC')
 
 
 # Intro to Portfolio Analytics ####
-suppressMessages((
+tickers <- suppressMessages((
   getSymbols(
-    c("CTL", "COST", "DTO", "HSY", "TUES"),
+    c("CTL", "COST", "HSY","LGORF"),
     src = "yahoo",
     auto.assign = TRUE,
-    from = "2000-01-01"
+    from = Sys.Date() - (365 * 2)
   )
 ))
-qty <- c(31.787, 102.249, 1000, 101.443, 2000)
+qty <- c(32.537, 102.488, 102.392, 5000)
 quotes <- getQuote(tickers, src = "yahoo")
 dollar_values <- qty * quotes$Last
 weights <- round((dollar_values / sum(dollar_values) * 100), 2)
@@ -40,7 +40,7 @@ suppressMessages((
     c("SPY", "TLT", "GLD"),
     src = "yahoo",
     auto.assign = TRUE,
-    from = "2005-01-01"
+    from = "2000-01-01"
   )
 ))
 
