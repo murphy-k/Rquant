@@ -1,24 +1,29 @@
 # Trading Strategy: Mean-Reversion "Relative-Strength Index"
 # Technical Indicators: RSI
-# Optimization/Walk Forward Analysis: No/No [V.1.0 will not include optimization
-#                                            until the code has min. redundancy]
-# 1. Load R Packages
+# Optimization/Walk Forward Analysis: No/No
 
+# 1. Load R Packages
 library("quantstrat")
 
-# Stock Instrument Initialization
+# Setup ####
 
 # 2.1. Initial Settings
-init.portf <- '2006-12-31'
-start.date <- '2007-10-27'
-end.date <- '2017-10-27'
+init.portf <- '2010-12-31'
+start.date <- '2011-01-01'
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
-instrumentSymbol <- "SPY"
+init.equity <- 10000
+enable_stops <- FALSE
+period <- 12
+buythreshold <- 30
+sellthreshold <- 80
+order_qty <- 10
+
+
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = instrumentSymbol,
-  src = "google",
+    Symbols = "SPY",
+  src = "yahoo",
   from = start.date,
   to = end.date,
   index.class = "POSIXct",
@@ -29,7 +34,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = instrumentSymbol,
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -38,8 +43,8 @@ stock(primary_id = instrumentSymbol,
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(get(instrumentSymbol))
-addRSI(n = 14)
+barChart("SPY")
+addRSI(n = period)
 
 # 4. Strategy Initialization
 
@@ -66,7 +71,7 @@ add.indicator(
   name = "RSI",
   arguments = list(
     price = quote(getPrice(mktdata)),
-    n = 14,
+    n = period,
     maType = 'EMA'
   ),
   label = 'RSI'
@@ -79,7 +84,7 @@ add.signal(
   strategy = mean2.strat,
   name = "sigThreshold",
   arguments = list(
-    threshold = 30,
+    threshold = buythreshold,
     column = "RSI",
     relationship = "lt"
   ),
@@ -90,7 +95,7 @@ add.signal(
   strategy = mean2.strat,
   name = "sigThreshold",
   arguments = list(
-    threshold = 70,
+    threshold = sellthreshold,
     column = "RSI",
     relationship = "gt"
   ),
@@ -106,7 +111,7 @@ add.rule(
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
-    orderqty = 100,
+    orderqty = order_qty,
     ordertype = 'market',
     orderside = 'long'
   ),
@@ -129,7 +134,7 @@ add.rule(
   type = 'chain',
   label = "StopLoss",
   parent = "EnterRule",
-  enabled = F
+  enabled = enable_stops
 )
 add.rule(
   strategy = mean2.strat,
@@ -145,7 +150,7 @@ add.rule(
   type = 'chain',
   label = "TrailingStop",
   parent = "EnterRule",
-  enabled = F
+  enabled = enable_stops
 )
 
 # 5.3.2. Add Exit Rule
@@ -178,7 +183,7 @@ rm.strat(mean2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean2.portf,
-          symbols = instrumentSymbol,
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -231,9 +236,9 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean2.portf,
-           Symbol = instrumentSymbol,
+           Symbol = "SPY",
            theme = chart.theme)
-add_RSI(n = 14, maType = "EMA")
+add_RSI(n = period, maType = "EMA")
 
 # 8.1.5. Strategy Equity Curve
 mean2.acct <- getAccount(Account = mean2.strat)
@@ -243,7 +248,7 @@ plot(mean2.equity, main = "Mean2 Strategy Equity Curve")
 # 8.1.6. Strategy Performance Chart
 mean2.ret <- Return.calculate(mean2.equity, method = "log")
 bh.ret <-
-  Return.calculate(get(instrumentSymbol)[, 4], method = "log")
+  Return.calculate(get("SPY")[, 4], method = "log")
 mean2.comp <- cbind(mean2.ret, bh.ret)
 charts.PerformanceSummary(mean2.comp, main = "Mean2 Strategy Performance")
 table.AnnualizedReturns(mean2.comp)
@@ -253,7 +258,7 @@ table.AnnualizedReturns(mean2.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = instrumentSymbol
+  Symbol = "SPY"
   ,
   type = 'MAE',
   scale = 'percent'
@@ -262,7 +267,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = instrumentSymbol,
+  Symbol = "SPY",
   type = 'MFE',
   scale = 'percent'
 )

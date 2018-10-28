@@ -3,22 +3,25 @@
 # Optimization/Walk Forward Analysis: Yes/No [V.1.0]
 
 # 1. Load R packages
-
 library("quantstrat")
 
-# 2. Stock Instrument Initialization
+# Setup ####
 
 # 2.1. Initial Settings
-init.portf <- '2006-12-31'
-start.date <- '2007-01-01'
-end.date <- '2017-10-27'
+init.portf <- '2010-12-31'
+start.date <- '2011-01-01'
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 10000
-
+init.equity <- 100000
+enable_stops <- FALSE
+period_params <- list(n = c(10, 12, 14))
+buythreshold_params <- list(threshold = c(30, 20))
+sellthreshold_params <- list(threshold = c(70, 80))
+order_qty <- 10
 # 2.2. Data Downloading
 getSymbols(
   Symbols = "SPY",
-  src = "google",
+  src = "yahoo",
   from = start.date,
   to = end.date,
   index.class = "POSIXct",
@@ -93,7 +96,7 @@ add.rule(
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
-    orderqty = 10,
+    orderqty = order_qty,
     ordertype = 'market',
     orderside = 'long'
   ),
@@ -116,7 +119,7 @@ add.rule(
   type = 'chain',
   label = "StopLoss",
   parent = "EnterRule",
-  enabled = F
+  enabled = enable_stops
 )
 add.rule(
   strategy = opt.mean2.strat,
@@ -132,7 +135,7 @@ add.rule(
   type = 'chain',
   label = "TrailingStop",
   parent = "EnterRule",
-  enabled = F
+  enabled = enable_stops
 )
 
 # 5.3.2. Add Exit Rule
@@ -153,14 +156,14 @@ add.rule(
 )
 
 # 5.4.1. Add RSI Parameters Combinations
-
+# Parameters ####
 # Number of Periods Indicator Calculation
 add.distribution(
   strategy = opt.mean2.strat,
   paramset.label = 'OptMeanPar2',
   component.type = 'indicator',
   component.label = 'RSI',
-  variable = list(n = c(10, 14)),
+  variable = period_params,
   label = 'n'
 )
 # Buy Signal Threshold
@@ -169,7 +172,7 @@ add.distribution(
   paramset.label = 'OptMeanPar2',
   component.type = 'signal',
   component.label = 'BuySignal',
-  variable = list(threshold = c(30, 20)),
+  variable = buythreshold_params,
   label = 'BuyThreshold'
 )
 # Sell Signal Threshold
@@ -178,7 +181,7 @@ add.distribution(
   paramset.label = 'OptMeanPar2',
   component.type = 'signal',
   component.label = 'SellSignal',
-  variable = list(threshold = c(80, 70)),
+  variable = sellthreshold_params,
   label = 'SellThreshold'
 )
 
@@ -254,4 +257,3 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-
