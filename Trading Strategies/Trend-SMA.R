@@ -1,6 +1,6 @@
 # Trading Strategy: Trend-Following
 # Technical Indicators: Fast and Slow SMA
-# Optimization/Walk Forward Analysis: No/No [V.1.0]
+# Optimization/Walk Forward Analysis: No/No
 
 # Setup ####
 library("quantstrat")
@@ -15,9 +15,9 @@ init.equity <- 100000
 position_size <- 100
 enable_stops <- TRUE
 # Parameters ####
-symbol <- "FXB"
-fastLength <- 2
-slowLength <- 20
+symbol <- "AMD"
+fastLength <- 10
+slowLength <- 50
 
 # 2.2. Data Downloading
 getSymbols(

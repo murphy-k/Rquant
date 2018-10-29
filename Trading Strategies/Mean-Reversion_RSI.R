@@ -8,14 +8,14 @@ library("quantstrat")
 # Setup ####
 
 # 2.1. Initial Settings
-init.portf <- '2010-12-31'
-start.date <- '2011-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
-enable_stops <- FALSE
-period <- 12
-buythreshold <- 30
+enable_stops <- TRUE
+period <- 14
+buythreshold <- 20
 sellthreshold <- 80
 order_qty <- 10
 

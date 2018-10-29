@@ -7,16 +7,16 @@ library("quantstrat")
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2016-12-31'
-start.date <- '2017-01-01'
+init.portf <- '2006-12-31'
+start.date <- '2007-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 position_size <- 100
-enable_stops <- TRUE
+enable_stops <- FALSE
 
-fast_sma_params <- list(n = c(2, 5, 8, 10, 12))
-slow_sma_params <- list(n = c(15, 20, 25, 40, 50, 60, 70, 80))
+fast_sma_params <- list(n = c(2, 4, 6, 8, 12, 14, 16, 18, 20))
+slow_sma_params <- list(n = c(4, 8, 16, 32, 64, 128, 256, 512))
 
 getSymbols(
   Symbols = "SPY",

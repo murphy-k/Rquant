@@ -8,8 +8,8 @@ library("quantstrat")
 # Setup ####
 
 # 2.1. Initial Settings
-init.portf <- '2010-12-31'
-start.date <- '2011-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
@@ -20,7 +20,7 @@ sellthreshold_params <- list(threshold = c(70, 80))
 order_qty <- 10
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "AMD",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -32,7 +32,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "AMD",
       currency = "USD",
       multiplier = 1)
 
@@ -41,7 +41,7 @@ stock(primary_id = "SPY",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(SPY)
+barChart(AMD)
 addRSI(n = 14)
 
 # 4. Strategy Initialization
@@ -198,7 +198,7 @@ rm.strat(opt.mean2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean2.portf,
-          symbols = "SPY",
+          symbols = "AMD",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
