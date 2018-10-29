@@ -7,17 +7,17 @@ library("quantstrat")
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2016-12-31'
-start.date <- '2017-01-01'
+init.portf <- '2006-12-31'
+start.date <- '2007-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 position_size <- 100
 enable_stops <- TRUE
 # Parameters ####
-symbol <- "AMD"
-fastLength <- 10
-slowLength <- 50
+symbol <- "SPY"
+fastLength <- 2
+slowLength <- 20
 
 # 2.2. Data Downloading
 getSymbols(

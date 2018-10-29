@@ -15,8 +15,8 @@ init.equity <- 100000
 position_size <- 100
 enable_stops <- FALSE
 
-fast_sma_params <- list(n = c(2, 4, 6, 8, 12, 14, 16, 18, 20))
-slow_sma_params <- list(n = c(4, 8, 16, 32, 64, 128, 256, 512))
+fast_sma_params <- list(n = c(2, 4, 6, 8))
+slow_sma_params <- list(n = c(10, 20, 30))
 
 getSymbols(
   Symbols = "SPY",
