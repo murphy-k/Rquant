@@ -1,5 +1,5 @@
 ---
-title: "Log-Returns Analysis & Simulation"
+title: "Log-Returns Report & Monte Carlo Sim"
 author: "Kyle Evan Murphy"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -14,7 +14,7 @@ code_folding: hide
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r Packages, message=FALSE, warning=FALSE, include=FALSE}
+```{r Packages, echo=TRUE, message=FALSE, warning=FALSE}
 library(quantmod)   # get stock prices, stock analysis functions
 library(xts)        # extensible time series functions
 library(rvest)      # web scraping
@@ -30,59 +30,61 @@ library(corrplot)   # visualizing correlation plots
 
 ```{r Ticker Download, echo=TRUE, message=FALSE, warning=FALSE}
 getSymbols(
-  "AMZN",
+  "GE",
   src = "yahoo",
   auto.assign = TRUE,
   from = "1998-01-01",
-  to = Sys.Date(
+  to = Sys.Date()
   )
-)
-AMZN %>%
+  GE %>%
   chartSeries(TA = "addSMA(200);
-              addVo();",
-              subset = "2008::",
-              theme = "white")
+  addVo();",
+  subset = "2008::",
+  theme = "white")
 ```
 
 
-Calculate the log returns of "AMZN". Latest observations:
-```{r Calculate Log Returns, echo=FALSE}
-AMZN %>%
+Calculate the log returns of "GE". Latest observations:
+```{r Calculate Log Returns, echo=TRUE}
+GE %>%
   Ad() %>%
   dailyReturn(type = "log") %>%
   round(digits = 3) %>%
-  head(n=7)
+  head(n = 7)
 ```
 
-```{r Histogram, include=FALSE}
-log_returns <- AMZN %>%
+```{r Histogram, echo=TRUE}
+log_returns <- GE %>%
   Ad() %>%
   dailyReturn(type = "log")
 names(log_returns) <- "Log.Returns"
 ```
-```{r echo=FALSE}
-(log_returns * 100) %>%
+```{r echo=TRUE}
+(
+  log_returns * 100
+  ) %>%
   ggplot(aes(x = Log.Returns)) +
   geom_histogram(bins = 100) +
   geom_density() +
-  geom_rug(alpha = 0.5) + ggtitle("AMZN Log-Returns %")
+  geom_rug(alpha = 0.5) + ggtitle("GE Log-Returns %")
 ```
 
 Quantiles:
-```{r echo=FALSE, warning=FALSE}
+```{r echo=TRUE, warning=FALSE}
 probs <- c(.005, .025, .25, .5, .75, .975, .995)
 dist_log_returns <- log_returns %>%
-quantile(probs = probs, na.rm = TRUE)
+  quantile(probs = probs, na.rm = TRUE)
 dist_log_returns %>%
-round(digits = 3)
+  round(digits = 3)
 ```
 
 
 Mean and Std.Dev:
-```{r Moments, echo=FALSE}
+```{r Moments, echo=TRUE}
 mean_log_returns <-
   mean(log_returns, na.rm = TRUE) %>% round(digits = 5)
-  sd_log_retuns <- sd(log_returns, na.rm = TRUE) %>% round(digits = 5)
+  sd_log_retuns <-
+  sd(log_returns, na.rm = TRUE) %>% round(digits = 5)
   print(c(
   "Mean log return:",
   mean_log_returns,
@@ -92,42 +94,42 @@ mean_log_returns <-
 ```
 
 
-```{r Exponentiate, include=FALSE}
+```{r Exponentiate, echo=TRUE}
 mean_log_returns %>%
   exp()
 ```
 
 Average daily percent return:
-```{r Average Daily Percent Return, echo=FALSE}
-round((exp(mean_log_returns) - 1) * 100,digits = 3)
+```{r Average Daily Percent Return, echo=TRUE}
+round((exp(mean_log_returns) - 1) * 100, digits = 3)
 ```
 
 ### Simulations
 
 Random-Walk simulation (252 days):
-```{r RW Simulation, include=FALSE}
+```{r RW Simulation, echo=TRUE}
 N <- 252
 mu <- mean_log_returns
 sigma <- sd_log_retuns
 day <- 1:N
-price_init <- AMZN$AMZN.Adjusted[[nrow(AMZN$AMZN.Adjusted)]]
-AMZN$AMZN.Adjusted[[nrow(AMZN$AMZN.Adjusted)]]
+price_init <- GE$GE.Adjusted[[nrow(GE$GE.Adjusted)]]
+GE$GE.Adjusted[[nrow(GE$GE.Adjusted)]]
 # Simulate prices
 set.seed(1)
 price <- c(price_init, rep(NA, N - 1))
 for (i in 2:N) {
-price[i] <- price [i - 1] * exp(rnorm(1, mu, sigma))
+  price[i] <- price [i - 1] * exp(rnorm(1, mu, sigma))
 }
 price_sim <- cbind(day, price) %>%
-as_tibble()
+  as_tibble()
 ```
 
-```{r RW Visual, echo=FALSE}
+```{r RW Visual, echo=TRUE}
 # Visualize the price simulation
 price_sim %>%
   ggplot(aes(day, price)) +
   geom_line() +
-  ggtitle(str_c("AMZN: Simulated Prices for ", N, " Trading Days"))
+  ggtitle(str_c("GE: Simulated Prices for ", N, " Trading Days"))
 ```
 
 
@@ -139,66 +141,66 @@ M <- 1000 # number of monte carlo simulations
 
 
 
-```{r Monte Carlo Code, echo=FALSE, warning=FALSE}
+```{r Monte Carlo Code, echo=TRUE, warning=FALSE}
 monte_carlo_matrix <- matrix(nrow = N, ncol = M)
 for (j in 1:M) {
-monte_carlo_matrix[[1, j]] <- price_init
-for (i in 2:N) {
-monte_carlo_matrix[[i, j]] <-
-monte_carlo_matrix[[i - 1, j]] * exp(rnorm(1, mu, sigma))
-}
+  monte_carlo_matrix[[1, j]] <- price_init
+  for (i in 2:N) {
+    monte_carlo_matrix[[i, j]] <-
+      monte_carlo_matrix[[i - 1, j]] * exp(rnorm(1, mu, sigma))
+  }
 }
 price_sim <- cbind(day, monte_carlo_matrix) %>%
-as_tibble()
+  as_tibble()
 nm <- str_c("Sim.", seq(1, M))
 nm <- c("Day", nm)
 names(price_sim) <- nm
 price_sim <- price_sim %>%
-gather(key = "Simulation", value = "Stock.Price", -(Day))
+  gather(key = "Simulation", value = "Stock.Price", -(Day))
 
 # Visualize Simulation
 price_sim %>%
-ggplot(aes(x = Day, y = Stock.Price, Group = Simulation)) +
-geom_line(alpha = 0.10, col = "red") +
-ggtitle(str_c(
-"AMZN: ",
-M,
-" Monte Carlo Simulations for Prices Over ",
-N,
-" Trading Days"
-))
+  ggplot(aes(x = Day, y = Stock.Price, Group = Simulation)) +
+  geom_line(alpha = 0.10, col = "red") +
+  ggtitle(str_c(
+    "GE: ",
+    M,
+    " Monte Carlo Simulations for Prices Over ",
+    N,
+    " Trading Days"
+  ))
 ```
 
 
 Boundaries:
-```{r End Simulation Quartiles, echo=FALSE, message=FALSE, warning=FALSE}
-print(c("Starting Price: ", round(AMZN$AMZN.Adjusted[[nrow(AMZN)]],digits = 3)))
+```{r End Simulation Quartiles, echo=TRUE, message=FALSE, warning=FALSE}
+print(c("Starting Price: ", round(GE$GE.Adjusted[[nrow(GE)]], digits = 3)))
 end_stock_prices <- price_sim %>%
-  filter(Day == max(Day))
+filter(Day == max(Day))
 dist_end_stock_prices <-
-  quantile(end_stock_prices$Stock.Price, probs = probs)
+quantile(end_stock_prices$Stock.Price, probs = probs)
 dist_end_stock_prices %>% round(2)
 ```
 
 Median Monte-Carlo simulation price:
-```{r echo=FALSE}
+```{r echo=TRUE}
 print(dist_end_stock_prices[[4]])
 ```
 
 CAGR Comparison:
-```{r CAGR Calculations, include=FALSE}
-N_hist <- nrow(AMZN) / 252
-p_start_hist <- AMZN$AMZN.Adjusted[[1]]
-p_end_hist <- AMZN$AMZN.Adjusted[[nrow(AMZN)]]
+```{r CAGR Calculations, echo=TRUE}
+N_hist <- nrow(GE) / 252
+p_start_hist <- GE$GE.Adjusted[[1]]
+p_end_hist <- GE$GE.Adjusted[[nrow(GE)]]
 N_sim <- N / 252
 p_start_sim <- p_end_hist
 p_end_sim <- dist_end_stock_prices[[4]]
 ```
 
 
-```{R CAGR Comparison, echo=FALSE}
+```{R CAGR Comparison, echo=TRUE}
 CAGR_hist <- (p_end_hist / p_start_hist) ^ (1 / N_hist) - 1
 CAGR_sim <- (p_end_sim / p_start_sim) ^ (1 / N_sim) - 1
-print(c("AMZN CAGR %: ", round(CAGR_hist,4)*100))
-print(c("Simulation CAGR %: ", round(CAGR_sim,digits = 4)*100))
+print(c("GE CAGR %: ", round(CAGR_hist, digits = 4) * 100))
+print(c("Simulation CAGR %: ", round(CAGR_sim, digits = 4) * 100))
 ```
