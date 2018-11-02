@@ -1,19 +1,24 @@
 # Trading Strategy: Trend-Following Momentum
 # Technical Indicators: MACD
 # Optimization/Walk Forward Analysis: Yes/No
+
 # Setup ####
 library("quantstrat")
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 position_size <- 100
-enable_stops <- FALSE
+enable_stops <- TRUE
 txn_fee <- -6
+fastema_params <- list(nFast = c(8, 10, 12, 14))
+slowema_params <- list(nSlow = c(14, 20, 26, 32))
+signal_params <- list(nSig = c(3, 6, 9, 12))
+
 
 getSymbols(
   Symbols = "SPY",
@@ -21,7 +26,7 @@ getSymbols(
   from = start.date,
   to = end.date,
   index.class = "POSIXct",
-  adjust = TRUE, 
+  adjust = TRUE,
   auto.assign = TRUE
 )
 currency(primary_id = "USD")
@@ -154,6 +159,7 @@ add.rule(
   enabled = T
 )
 
+# Parameters ####
 # 5.4. Add Strategy Distributions
 
 # 5.4.1. Add MACD Parameters Combinations
@@ -164,7 +170,7 @@ add.distribution(
   paramset.label = 'OptTrendPar2',
   component.type = 'indicator',
   component.label = 'MACD',
-  variable = list(nFast = c(12, 10)),
+  variable = fastema_params,
   label = 'nFastEMA'
 )
 # Slow EMA
@@ -173,7 +179,7 @@ add.distribution(
   paramset.label = 'OptTrendPar2',
   component.type = 'indicator',
   component.label = 'MACD',
-  variable = list(nSlow = c(26, 20)),
+  variable = slowema_params,
   label = 'nSlowEMA'
 )
 # Signal EMA
@@ -182,7 +188,7 @@ add.distribution(
   paramset.label = 'OptTrendPar2',
   component.type = 'indicator',
   component.label = 'MACD',
-  variable = list(nSig = c(9, 6)),
+  variable = signal_params,
   label = 'nSigEMA'
 )
 
