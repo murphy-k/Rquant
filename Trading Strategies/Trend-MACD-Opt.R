@@ -15,9 +15,9 @@ init.equity <- 100000
 position_size <- 100
 enable_stops <- TRUE
 txn_fee <- -6
-fastema_params <- list(nFast = c(8, 10, 12, 14))
-slowema_params <- list(nSlow = c(14, 20, 26, 32))
-signal_params <- list(nSig = c(3, 6, 9, 12))
+fastema_params <- list(nFast = c(10, 12, 14))
+slowema_params <- list(nSlow = c(20, 26, 32))
+signal_params <- list(nSig = c(6, 9, 12))
 
 
 getSymbols(
