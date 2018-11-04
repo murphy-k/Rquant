@@ -12,12 +12,12 @@ start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
+position_size <- 100
+enable_stops <- FALSE
+txn_fee <- -6
 fastema <- 10
 slowema <- 26
 signal <- 9
-position_size <- 100
-txn_fees <- -6
-enable_stops <- FALSE
 
 
 # 2.2. Data Downloading
@@ -163,7 +163,7 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees = txn_fees
+    TxnFees = txn_fee
   ),
   type = 'exit',
   label = "ExitRule",

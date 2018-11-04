@@ -1,26 +1,29 @@
 # Trading Strategy: Mean-Reversion "Relative-Strength Index"
 # Technical Indicators: RSI
-# Optimization/Walk Forward Analysis: Yes/No [V.1.0]
+# Optimization/Walk Forward Analysis: Yes/No
 
-# 1. Load R packages
+# 1. Packages ####
 library("quantstrat")
+rm(list = ls())
+dev.off(dev.list()["RStudioGD"])
 
-# Setup ####
-
+# 2. Setup ####
 # 2.1. Initial Settings
 init.portf <- '2007-12-31'
 start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
+enable_stops <- TRUE
 period_params <- list(n = c(10, 12, 14))
 buythreshold_params <- list(threshold = c(30, 20))
 sellthreshold_params <- list(threshold = c(70, 80))
-order_qty <- 10
+position_size <- 100
+txn_fee <- -6
+
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "AMD",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -32,46 +35,36 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "AMD",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
-# 3. Strategy Details
-
+# 3. Details ####
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(AMD)
+barChart(SPY)
 addRSI(n = 14)
 
-# 4. Strategy Initialization
-
+# 4. Initialization ####
 # 4.1. Strategy Name
 opt.mean2.strat <- "OptMeanStrat2"
-
 # 4.2. Clear Strategy Data
 rm.strat(opt.mean2.strat)
-
 # 4.3. Strategy Object
 strategy(name = opt.mean2.strat, store = TRUE)
-
 # 4.4. Completed Strategy Object
 summary(getStrategy(opt.mean2.strat))
 
-# 5. Strategy Definition
-
+# 5. Definitions ####
 # 5.1. Add Strategy Indicator
-
-# 5.1.1. Add RSI
 add.indicator(
   strategy = opt.mean2.strat,
   name = "RSI",
   arguments = list(price = quote(getPrice(mktdata))),
   label = 'RSI'
 )
-
-# 5.2. Add Strategy Signals
-
+# 5.2. Signals ####
 # 5.2.1. Add Buying Signal
 add.signal(
   strategy = opt.mean2.strat,
@@ -87,8 +80,7 @@ add.signal(
   label = "SellSignal"
 )
 
-# 5.3. Add Strategy Rules
-
+# 5.3. Rules ####
 # 5.3.1. Add Enter Rule
 add.rule(
   strategy = opt.mean2.strat,
@@ -96,7 +88,7 @@ add.rule(
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
-    orderqty = order_qty,
+    orderqty = position_size,
     ordertype = 'market',
     orderside = 'long'
   ),
@@ -104,7 +96,7 @@ add.rule(
   label = "EnterRule",
   enabled = T
 )
-# Stop-Loss and Trailing-Stop Rules (enabled = FALSE by default)
+# Stop-Loss and Trailing-Stop Rules
 add.rule(
   strategy = opt.mean2.strat,
   name = 'ruleSignal',
@@ -148,16 +140,15 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees = -6
+    TxnFees = txn_fee
   ),
   type = 'exit',
   label = "ExitRule",
   enabled = T
 )
 
-# 5.4.1. Add RSI Parameters Combinations
-# Parameters ####
-# Number of Periods Indicator Calculation
+# 5.4. Parameters ####
+# Number of Periods
 add.distribution(
   strategy = opt.mean2.strat,
   paramset.label = 'OptMeanPar2',
@@ -184,21 +175,17 @@ add.distribution(
   variable = sellthreshold_params,
   label = 'SellThreshold'
 )
-
 # 5.5. Completed Strategy Object
 summary(getStrategy(opt.mean2.strat))
 
-# 6. Portfolio Initialization
-
+# 6. Portfolio Initialization ####
 # 6.1. Portfolio Names
 opt.mean2.portf <- "OptMeanPort2"
-
 # 6.2. Clear Portfolio Data
 rm.strat(opt.mean2.portf)
-
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean2.portf,
-          symbols = "AMD",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -212,7 +199,7 @@ initAcct(
 # 6.3. Initialize Orders Object
 initOrders(portfolio = opt.mean2.portf, initDate = init.portf)
 
-# 7. Strategy Optimization
+# 7. Optimization ####
 
 # 7.1. Strategy Optimization Results
 opt.mean2.results <-
@@ -230,7 +217,7 @@ opt.mean2.results <-
 # 7.2.1. Strategy Optimization General Trade Statistics
 all.mean2.stats <- opt.mean2.results$tradeStats
 View(t(all.mean2.stats))
-
+View(all.mean2.stats)
 # 7.2.2. Strategy Optimization Net Trading PL
 plot(
   x = all.mean2.stats$Portfolio,

@@ -1,31 +1,33 @@
 # Trading Strategy: Mean-Reversion Statistical Arbitrage
 # Technical Indicators: Z-Score
-# Optimization
+# Optimization/Walk Forward Analysis: Yes/No
 
-# 1. Load R packages
-
+# 1. Packages ####
 library("quantstrat")
 library("tseries")
 library("roll")
 library("pracma")
+rm(list = ls())
+dev.off(dev.list()["RStudioGD"])
 
-# Initial Settings
-init.portf <- '1998-12-31'
-start.date <- '1999-01-01'
-end.date <- '2018-04-13'
+# 2. Setup ####
+
+# 2.1. Initial Settings
+init.portf <- '2016-12-31'
+start.date <- '2017-01-01'
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-# Set-up initial equity, position sizing and stops on/off.
-init.equity <- 25000
+init.equity <- 100000
+enable_stops <- FALSE
+period_params <- list(n = c(10, 15, 20, 25))
+buythreshold_params <- list(threshold = c(-1.25, -1.5, -1.75, -2.00))
+sellthreshold_params <- list(threshold = c(1.25, 1.5, 1.75, 2.00))
 position_size <- 100
-enable_stops <- TRUE
-# Z-Score calculation parameters - will simulate all combinations.
-n_vector <- c(10, 15, 20)
-sdBuy_vector <- c(-2.0, -1.5, -1.75)
-sdSell_vector <- c(2.0, 1.5, 1.75)
+txn_fee <- -6
 
-# Data Downloading
+# 2.2. Data Downloading
 getSymbols(
-  Symbols = "HSY",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -33,67 +35,77 @@ getSymbols(
   adjust = T
 )
 
-# Initialize currency & stock instrument handlers
+# 2.3. Initialize Currency
 currency(primary_id = "USD")
-stock(primary_id = "HSY",
+
+# 2.4.Initialize Stock Instrument
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
+# 3. Details ####
+# Mean-Reversion Statistical Arbitrage Strategy
+# Stationary Time Series Tests: ADF, KPSS, Hurst Exponent
+# Buy Rules = Buy when Z-Score < -1.5 Treshold
+# Sell Rules = Sell when Z-Score > +1.5 Treshold
 
-# Visualize the number of rows in our HSY data frame to accurately format
-# the 2-period sma filter. (Not used - YET)
+# 3.1. Stationary Time Series Tests
 
-str(HSY)
-HSY_filtered <- (SMA(x = HSY[1:4850, 6], n = 2))
-str(HSY_filtered)
-plot(HSY[, 6])
-plot(HSY_filtered[, 1], type = "l")
+# Augmented Dickey-Fuller Test
+# p-value > 0.05 = not stationary
 
-# Stationarity Time Series Tests
-# ADF Test       | p-value > 0.05 = not stationary
-# KPSS Test      | p-value < 0.05 = not stationary
-# Hurst Exponent | H = 0.5 (Random Walk)
-#                | 0.5 < H < 1 (Trending)
-#                | 0 < H < 0.5 (Mean Reverting)
+# Kwiatkowski-Phillips-Schmidt-Shin Test
+# p-value < 0.05 = not stationary
 
-# Run the Time Series Stationarity Tests
-adf.test(Cl(HSY))
-kpss.test(Cl(HSY))
-hurstexp(Cl(HSY))
+# Hurst Exponent
+# H = 0.5 (Random Walk)
+# 0.5 < H < 1 (Trending)
+# 0 < H < 0.5 (Mean Reverting)
 
-# Run the Differentiated Time Series Stationarity Tests
-diffx <- diff(log(Cl(HSY)), lag = 1)
+# 3.1.1. Level Time Series
+adf.test(Cl(SPY))
+kpss.test(Cl(SPY))
+hurstexp(Cl(SPY))
+
+# 3.1.2. Differentiated Time Series
+diffx <- diff(log(Cl(SPY)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 adf.test(diffx)
 kpss.test(diffx)
-hurstexp(diffx[1:316])
+hurstexp(diffx)
 
-# z-score function and calculation
+# 3.2. Z-Score Function and Calculation
 
-# z-score function definition
+# 3.2.1. Z-Score Function
 zscore.fun <- function(x, n) {
   roll_scale(x, width = n)
 }
 
-# Visualize z-score on our given data set.
-zscore <- zscore.fun(diff(log(Cl(HSY)), lag = 1), n = 20)
+# 3.2.2. Z-Score Calculation
+zscore <- zscore.fun(diff(log(Cl(SPY)), lag = 1), n = 24)
 plot(zscore)
-abline(h = 2.0, col = 2)
-abline(h = -2.0, col = 3)
+abline(h = 1.5, col = 2)
+abline(h = -1.5, col = 3)
 
-# Strategy Initialization
-#   Strategy Name
+# 4. Initialization ####
+
+# 4.1. Strategy Name
 opt.mean3.strat <- "OptMeanStrat3"
-#   Clear Strategy Data
+
+# 4.2. Clear Strategy Data
 rm.strat(opt.mean3.strat)
-#   Strategy Object
+
+# 4.3. Strategy Object
 strategy(name = opt.mean3.strat, store = TRUE)
-#   Completed Strategy Object
+
+# 4.4. Completed Strategy Object
 summary(getStrategy(opt.mean3.strat))
 
-# Strategy Definition
-#   Add Strategy Indicator(s)
-#     Add Z-Score Indicator
+# 5. Definitions ####
+
+# 5.1. Add Strategy Indicator
+
+# 5.1.1. Add Z-Score Indicator
 add.indicator(
   strategy = opt.mean3.strat,
   name = "zscore.fun",
@@ -103,15 +115,16 @@ add.indicator(
   label = "zscore"
 )
 
-# Add Strategy Signals
-#   Add Z-Score Buying Signal
+# 5.2. Signals ####
+
+# 5.2.1. Add Z-Score Buying Signal
 add.signal(
   strategy = opt.mean3.strat,
   name = "sigThreshold",
   arguments = list(column = "zscore", relationship = "lt"),
   label = "BuySignal"
 )
-#   Add Z-Score Selling Signal
+# 5.2.2. Add Z-Score Selling Signal
 add.signal(
   strategy = opt.mean3.strat,
   name = "sigThreshold",
@@ -119,8 +132,9 @@ add.signal(
   label = "SellSignal"
 )
 
-#Add Strategy Rules
-#   Add Enter Rule
+# 5.3. Rules ####
+
+# 5.3.1. Add Enter Rule
 add.rule(
   strategy = opt.mean3.strat,
   name = 'ruleSignal',
@@ -135,7 +149,7 @@ add.rule(
   label = "EnterRule",
   enabled = T
 )
-#   Stop-Loss and Trailing-Stop Rules (Set to on/off in initial settings)
+# Stop-Loss and Trailing-Stop Rules
 add.rule(
   strategy = opt.mean3.strat,
   name = 'ruleSignal',
@@ -169,7 +183,7 @@ add.rule(
   enabled = enable_stops
 )
 
-#   Add Exit Rule
+# 5.3.2. Add Exit Rule
 add.rule(
   strategy = opt.mean3.strat,
   name = 'ruleSignal',
@@ -179,66 +193,74 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees = -6
+    TxnFees = txn_fee
   ),
   type = 'exit',
   label = "ExitRule",
   enabled = T
 )
 
-# Add ZScore Parameters Combinations
-#   calculate number of periods from vector
+# 5.4 Parameters ####
+
+# Number of Periods Indicator Calculation
 add.distribution(
   strategy = opt.mean3.strat,
   paramset.label = 'OptMeanPar3',
   component.type = 'indicator',
   component.label = 'zscore',
-  variable = list(n = n_vector),
+  variable = period_params,
   label = 'n'
 )
-#   calculate the std.dev buy signal vector
+# Number of Standard Deviations Buy Signal Threshold
 add.distribution(
   strategy = opt.mean3.strat,
   paramset.label = 'OptMeanPar3',
   component.type = 'signal',
   component.label = 'BuySignal',
-  variable = list(threshold = sdBuy_vector),
+  variable = buythreshold_params,
   label = 'sdBuy'
 )
-#   calculate the std.dev sell signal vector
+# Number of Standard Deviations Sell Signal Threshold
 add.distribution(
   strategy = opt.mean3.strat,
   paramset.label = 'OptMeanPar3',
   component.type = 'signal',
   component.label = 'SellSignal',
-  variable = list(threshold = sdSell_vector),
+  variable = sellthreshold_params,
   label = 'sdSell'
 )
 
-# Completed Strategy Object
+
+# 5.5. Completed Strategy Object
 summary(getStrategy(opt.mean3.strat))
 
-# Portfolio Initialization
-#   Portfolio Name
+# 6. Portfolio Initialization ####
+
+# 6.1. Portfolio Names
 opt.mean3.portf <- "OptMeanPort3"
-#   Clear Portfolio Data
+
+# 6.2. Clear Portfolio Data
 rm.strat(opt.mean3.portf)
-#   Initialize Portfolio Object
+
+# 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean3.portf,
-          symbols = "HSY",
+          symbols = "SPY",
           initDate = init.portf)
 
-#Initialize Account Object
+# 6.2. Initialize Account Object
 initAcct(
   name = opt.mean3.strat,
   portfolios = opt.mean3.portf,
   initDate = init.portf,
   initEq = init.equity
 )
-# Initialize Orders Object
+
+# 6.3. Initialize Orders Object
 initOrders(portfolio = opt.mean3.portf, initDate = init.portf)
 
-# Strategy Results
+# 7. Optimization #### 
+
+# 7.1. Strategy Optimization Results
 opt.mean3.results <-
   apply.paramset(
     strategy.st = opt.mean3.strat,
@@ -249,10 +271,13 @@ opt.mean3.results <-
     verbose = TRUE
   )
 
-# Strategy Results General Trade Statistics
+# 7.2. Strategy Optimization Trading Statistics
+
+# 7.2.1. Strategy Optimization General Trade Statistics
 all.mean3.stats <- opt.mean3.results$tradeStats
-View(t(all.mean3.stats))
-#   Strategy Optimization Net Trading PL
+View(all.mean3.stats)
+
+# 7.2.2. Strategy Optimization Net Trading PL
 plot(
   x = all.mean3.stats$Portfolio,
   y = all.mean3.stats$Net.Trading.PL,
@@ -260,7 +285,8 @@ plot(
   xlab = "Portfolio",
   ylab = "Net.Trading.PL"
 )
-#   Strategy Optimization Maximum Drawdown
+
+# 7.2.3. Strategy Optimization Maximum Drawdown
 plot(
   x = all.mean3.stats$Portfolio,
   y = all.mean3.stats$Max.Drawdown,
@@ -268,7 +294,8 @@ plot(
   xlab = "Portfolio",
   ylab = "Max.Drawdown"
 )
-#   Strategy Optimization Profit to Maximum Drawdown
+
+# 7.2.4. Strategy Optimization Profit to Maximum Drawdown
 plot(
   x = all.mean3.stats$Portfolio,
   y = all.mean3.stats$Profit.To.Max.Draw,
