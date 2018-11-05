@@ -1,0 +1,175 @@
+---
+title: "Loss Aversion - Learning Rates"
+author: "Kyle Murphy"
+date: "11/4/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(ggplot2)
+library(stringr)
+library(magrittr)
+library(tibble)
+library(tidyr)
+library(dplyr)
+rm(list=ls())
+```
+
+### Loss Aversion and the Sunk Cost Fallacy
+#### **Focus:**
+Examine people's decisions in an environment where the 'odds are against against them'. How quickly do people recognize a "bad bet" and under what circumstances?
+
+*Loss Aversion* is the tendency to prefer avoiding losses to acquiring equivalent gains. Individuals commit the *Sunk Cost Fallacy* when they continue a behavior or endeavor as a result of previously invested resources (time, money or effort) (Arkes & Blumer, 1985).
+
+#### **Research Goal:** 
+Examine the effects of the Sunk Cost fallacy on betting procedure. 
+
+##### **Questions:** 
+Does the Sunk Cost Fallacy have an effect on "betting" size?
+
+How quickly are "bad odds" recognized? 
+
+#### **Research Procedure:** 
+We will present participants with a betting scenario of our design. We may pose this betting scenario as a "weighted die roll" or "stock purchase" or "sports bet" with simple terms.
+
+The participant is **not** explicitly told about the properties of the distribution beforehand.
+``` {r Parameters}
+n = 10000
+sd = .1
+mean = -.1
+```
+
+```{r Distribution, include=FALSE}
+dist <- as.data.frame(rnorm(n = n, sd = sd, mean = mean))
+dist <- `colnames<-`(dist, "Outcome")
+```
+
+```{r Visualize, echo=FALSE}
+ggplot(dist, aes(x = Outcome)) +
+  geom_histogram(
+  aes(y = ..density..),
+  colour = "black",
+  fill = "white"
+  ) +
+  geom_vline(
+  aes(xintercept = mean(Outcome)),
+  color = "blue",
+  linetype = "dashed",
+  size = 1
+  ) +
+  geom_density(data = dist) +
+  geom_vline(
+  aes(xintercept = 0),
+  color = "black",
+  linetype = "solid",
+  size = 1
+  ) +
+  labs(title = "Betting Outcomes Distribution",
+  x = "Gain/Loss",
+  y = "Occurence")
+```
+
+###### Summary Distribution Statistics
+```{r Print, echo=FALSE}
+print(summary(dist))
+```
+Chances of earnings greater than $0.00 dollars is:
+```{r Calculation, echo=FALSE}
+exp_grtr_zero <- round(pnorm(
+  0,
+  mean = mean,
+  sd = sd,
+  lower.tail = FALSE
+  ), digits = 4) * 100
+exp_grtr_zero
+```
+
+Each participant is given an endowment and allowed to choose the amount of their endowment they are willing to risk per bet. Here we demonstrate a hypothetical trial with a maximum betting size of 100% given a 100 dollar endowment.
+
+```{r Betting Process, echo=FALSE}
+set.seed(2)
+# Parameters
+endowment <- 100
+total_bets <- 10
+# Simulate
+bet <- 1:total_bets
+betoutcome <- c(endowment, rep(NA, total_bets - 1))
+for (i in 2:total_bets) {
+  betoutcome[i] <- (betoutcome [i - 1] * exp(rnorm(1, mean, sd)))
+}
+bet_sim <- cbind(bet, betoutcome) %>%
+  as_tibble()
+
+# Visualize
+bet_sim %>%
+  ggplot(aes(bet, betoutcome)) +
+  geom_line() +
+  ggtitle(str_c("Simulated Outcomes for ", total_bets, " Total Bets")) +
+  scale_x_discrete(name ="Bet", 
+                   limits=bet) + 
+  labs(y = "Endowment ($) ")
+```
+Here we demonstrate the same process for 1000 hypothetical trials
+
+
+``` {r Betting Process Monte Carlo, echo=FALSE}
+M <- 1000 # Number of simulated participants
+
+# Simulate 
+monte_carlo_matrix <- matrix(nrow = total_bets, ncol = M)
+for (j in 1:M) {
+  monte_carlo_matrix[[1, j]] <- endowment
+  for (i in 2:total_bets) {
+    monte_carlo_matrix[[i, j]] <-
+      monte_carlo_matrix[[i - 1, j]] * exp(rnorm(1, mean, sd))
+  }
+}
+# Format
+bet_sim <- cbind(bet, monte_carlo_matrix) %>%
+  as_tibble()
+nm <- str_c("Sim.", seq(1, M))
+nm <- c("Bet", nm)
+names(bet_sim) <- nm
+bet_sim <- bet_sim %>%
+  gather(key = "Simulation", value = "Bet.Outcome", -(Bet))
+```
+```{r visualizer, echo=FALSE}
+# Visualize Simulation
+bet_sim %>%
+  ggplot(aes(x = Bet, y = Bet.Outcome, Group = Simulation)) +
+  geom_line(alpha = 0.05) +
+  ggtitle(str_c(
+    M,
+    " Simulations With ",
+    total_bets,
+    " Bets Each"
+  )) + labs(y = "Endowment $")
+```
+Summary intervals for the end of our simulation:
+```{r Outcomes, echo=FALSE}
+end_bet_outcomes <- bet_sim %>%
+  filter(Bet == max(Bet))
+dist_end_bet_outcomes <-
+  quantile(end_bet_outcomes$Bet.Outcome, probs = probs <- c(.005, .025, .25, .5, .75, .975, .995))
+dist_end_bet_outcomes %>% round(2)
+```
+
+#### **Expected Results:**
+###### Analysis:
+We are looking to record the *change* in each participant's betting sizes with every iterative gain or loss, with the purpose of analyzing any relationships between size of gain/loss and subsequent betting size.
+
+* Expected Result:
+Individuals will *increase* their betting size in some proportion to the amount lost in an attempt to "make the money back".
+* Expected Result:
+Individuals will play until they go broke. 
+
+#### **Challenges:**
+* Participants may not mind betting the entire $100 allotment until they go broke - it is not their money (Separate Mental Accounts).
+
+#### **Possible Modifiers:**
+* Ask volunteer participants to play with their own money.
+* Show participants the probability distribution at some point before/during betting. 
