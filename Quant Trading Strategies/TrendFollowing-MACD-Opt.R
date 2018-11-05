@@ -2,24 +2,26 @@
 # Technical Indicators: MACD
 # Optimization/Walk Forward Analysis: Yes/No
 
-# Setup ####
+# 1. Packages ####
 library("quantstrat")
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2007-12-31'
-start.date <- '2008-01-01'
+# 2. Setup ####
+# 2.1. Initial Settings
+init.portf <- '2016-12-31'
+start.date <- '2017-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-position_size <- 100
 enable_stops <- TRUE
-txn_fee <- -6
 fastema_params <- list(nFast = c(10, 12, 14))
 slowema_params <- list(nSlow = c(20, 26, 32))
 signal_params <- list(nSig = c(6, 9, 12))
+position_size <- 100
+txn_fee <- -6
 
-
+# 2.2. Data Downloading
 getSymbols(
   Symbols = "SPY",
   src = "yahoo",
@@ -29,21 +31,27 @@ getSymbols(
   adjust = TRUE,
   auto.assign = TRUE
 )
+
+# 2.3. Initialize Currency
 currency(primary_id = "USD")
+
+# 2.4.Initialize Stock Instrument
 stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
 
 
-# Strategy ####
+# 3. Details ####
+# Trend-Following Strategy
+# Buy Rules = Buy when MACD line > signal line
+# Sell Rules = Sell when MACD line < signal line
 barChart(SPY)
 addMACD(fast = 12,
         slow = 26,
         signal = 9)
 
-# 4. Strategy Initialization
-
+# 4. Initialization ####
 # 4.1. Strategy Name
 opt.trend2.strat <- "OptTrendStrat2"
 
@@ -56,11 +64,8 @@ strategy(name = opt.trend2.strat, store = TRUE)
 # 4.4. Completed Strategy Object
 summary(getStrategy(opt.trend2.strat))
 
-# 5. Strategy Definition
-
+# 5. Definitions ####
 # 5.1. Add Strategy Indicator
-
-# 5.1.1. Add MACD
 add.indicator(
   strategy = opt.trend2.strat,
   name = "MACD",
@@ -68,7 +73,7 @@ add.indicator(
   label = "MACD"
 )
 
-# 5.2. Add Strategy Signals
+# 5.2. Signals ####
 
 # 5.2.1. Add Buying Signal
 add.signal(
@@ -91,8 +96,7 @@ add.signal(
   label = "SellSignal"
 )
 
-# 5.3. Add Strategy Rules
-
+# 5.3. Rules ####
 # 5.3.1. Add Enter Rule
 add.rule(
   strategy = opt.trend2.strat,
@@ -108,7 +112,7 @@ add.rule(
   label = "EnterRule",
   enabled = T
 )
-# Stop-Loss and Trailing-Stop Rules (enabled = FALSE by default)
+# Stop-Loss and Trailing-Stop Rules
 add.rule(
   strategy = opt.trend2.strat,
   name = 'ruleSignal',
@@ -159,11 +163,7 @@ add.rule(
   enabled = T
 )
 
-# Parameters ####
-# 5.4. Add Strategy Distributions
-
-# 5.4.1. Add MACD Parameters Combinations
-
+# 5.4. Parameters ####
 # Fast EMA
 add.distribution(
   strategy = opt.trend2.strat,
@@ -195,7 +195,7 @@ add.distribution(
 # 5.4. Completed Strategy Object
 summary(getStrategy(opt.trend2.strat))
 
-# 6. Portfolio Initialization
+# 6. Portfolio Initialization ####
 
 # 6.1. Portfolio Names
 opt.trend2.portf <- "OptTrendPort2"
@@ -219,7 +219,7 @@ initAcct(
 # 6.5. Initialize Orders Object
 initOrders(portfolio = opt.trend2.portf, initDate = init.portf)
 
-# 7. Strategy Optimization
+# 7. Optimization ####
 
 # 7.1. Strategy Optimization Results
 opt.trend2.results <-
@@ -236,7 +236,7 @@ opt.trend2.results <-
 
 # 7.2.1. Strategy Optimization General Trade Statistics
 all.trend2.stats <- opt.trend2.results$tradeStats
-View(t(all.trend2.stats))
+View(all.trend2.stats)
 
 # 7.2.2. Strategy Optimization Net Trading PL
 plot(
@@ -264,3 +264,5 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
+
+

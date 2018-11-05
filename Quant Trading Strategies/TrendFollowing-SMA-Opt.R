@@ -2,24 +2,27 @@
 # Technical Indicators: Fast and Slow SMA
 # Optimization/Walk Forward Analysis: Yes/No
 
-# Setup ####
+# 1. Pacakges ####
 library("quantstrat")
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
-init.portf <- '2006-12-31'
-start.date <- '2007-01-01'
+# 2. Setup ####
+# 2.1. Initial Settings
+init.portf <- '2016-12-31'
+start.date <- '2017-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-position_size <- 100
-enable_stops <- FALSE
+enable_stops <- TRUE
+fast_sma_params <- list(n = c(2:9))
+slow_sma_params <- list(n = c(10:30))
+position_size <- 10
+txn_fee <- -6
 
-fast_sma_params <- list(n = c(2, 4, 6, 8))
-slow_sma_params <- list(n = c(10, 20, 30))
-
+# 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "BABA",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -27,12 +30,23 @@ getSymbols(
   adjust = TRUE,
   auto.assign = TRUE
 )
+# 2.3. Initialize Currency
 currency(primary_id = "USD")
-stock(primary_id = "SPY",
+
+# 2.4.Initialize Stock Instrument
+stock(primary_id = "BABA",
       currency = "USD",
       multiplier = 1)
 
-# Strategy ####
+
+
+# 3. Details ####
+# Trend-Following Strategy
+# Buy Rules = Buy when fast SMA > slow SMA
+# Sell Rules = Sell when fast SMA < slow SMA
+
+# 4. Initialization ####
+# 4.1. Strategy Name
 opt.trend1.strat <- "OptTrendStrat1"
 
 # 4.2. Clear Strategy Data
@@ -44,7 +58,7 @@ strategy(name = opt.trend1.strat, store = TRUE)
 # 4.4. Completed Strategy Object
 summary(getStrategy(opt.trend1.strat))
 
-# 5. Strategy Definition
+# 5. Definitions ####
 
 # 5.1. Add Strategy Indicator
 
@@ -63,7 +77,7 @@ add.indicator(
   label = "SlowSMA"
 )
 
-# 5.2. Add Strategy Signals
+# 5.2. Signals ####
 
 # 5.2.1. Add Buying Signal
 add.signal(
@@ -86,7 +100,7 @@ add.signal(
   label = "SellSignal"
 )
 
-# 5.3. Add Strategy Rules
+# 5.3. Rules ####
 
 # 5.3.1. Add Enter Rule
 add.rule(
@@ -103,7 +117,7 @@ add.rule(
   label = "EnterRule",
   enabled = T
 )
-# Stop-Loss and Trailing-Stop Rules (enabled = FALSE by default)
+# Stop-Loss and Trailing-Stop Rules
 add.rule(
   strategy = opt.trend1.strat,
   name = 'ruleSignal',
@@ -147,17 +161,15 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees = -6
+    TxnFees = txn_fee
   ),
   type = 'exit',
   label = "ExitRule",
   enabled = T
 )
-# Parameters ####
-# 5.4. Add Strategy Distributions
 
+# 5.4. Parameters ####
 # 5.4.1. Add SMA Parameters Combinations
-
 # Fast SMA
 add.distribution(
   strategy = opt.trend1.strat,
@@ -180,7 +192,7 @@ add.distribution(
 # 5.4. Completed Strategy Object
 summary(getStrategy(opt.trend1.strat))
 
-# 6. Portfolio Initialization
+# 6. Portfolio Initialization ####
 
 # 6.1. Portfolio Names
 opt.trend1.portf <- "OptTrendPort1"
@@ -190,7 +202,7 @@ rm.strat(opt.trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
-          symbols = "SPY",
+          symbols = "BABA",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object
@@ -204,7 +216,7 @@ initAcct(
 # 6.5. Initialize Orders Object
 initOrders(portfolio = opt.trend1.portf, initDate = init.portf)
 
-# 7. Strategy Optimization
+# 7. Optimization ####
 
 # 7.1. Strategy Optimization Results
 opt.trend1.results <-
@@ -221,26 +233,29 @@ opt.trend1.results <-
 
 # 7.2.1. Strategy Optimization General Trade Statistics
 all.trend1.stats <- opt.trend1.results$tradeStats
-View(t(all.trend1.stats))
+View(all.trend1.stats)
 
 # 7.2.2. Strategy Optimization Net Trading PL
-plot(
+plot.zoo(
   x = all.trend1.stats$Portfolio,
   y = all.trend1.stats$Net.Trading.PL,
   main = "Trend1 Optimization Net Trading PL",
   xlab = "Portfolio",
   ylab = "Net.Trading.PL"
 )
+lines(rollmedian(x = all.trend1.stats$Net.Trading.PL,
+                 k = 5))
 
 # 7.2.3. Strategy Optimization Maximum Drawdown
-plot(
+plot.zoo(
   x = all.trend1.stats$Portfolio,
   y = all.trend1.stats$Max.Drawdown,
   main = "Trend1 Optimization Maximum Drawdown",
   xlab = "Portfolio",
   ylab = "Max.Drawdown"
 )
-
+lines(rollmedian(x = all.trend1.stats$Max.Drawdown,
+                 k = 5))
 # 7.2.4. Strategy Optimization Profit to Maximum Drawdown
 plot.zoo(
   x = all.trend1.stats$Portfolio,
@@ -249,3 +264,6 @@ plot.zoo(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
+lines(rollmedian(x = all.trend1.stats$Profit.To.Max.Draw,
+                 k = 5))
+which.max(all.trend1.stats$Profit.To.Max.Draw)
