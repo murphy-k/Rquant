@@ -4,19 +4,19 @@
 
 # 1. Packages ####
 library("quantstrat")
-rm(list = ls())
+# rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2007-12-31'
-start.date <- '2008-01-01'
+init.portf <- '2006-12-31'
+start.date <- '2007-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-period <- 14
-buythreshold <- 20
+period <- 7
+buythreshold <- 30
 sellthreshold <- 70
 position_size <- 100
 txn_fee <- -6
@@ -63,8 +63,7 @@ add.indicator(
   name = "RSI",
   arguments = list(
     price = quote(getPrice(mktdata)),
-    n = period,
-    maType = 'EMA'
+    n = period
   ),
   label = 'RSI'
 )
@@ -153,7 +152,7 @@ add.rule(
     orderqty = 'all',
     ordertype = 'market',
     orderside = 'long',
-    TxnFees =
+    TxnFees = txn_fee
   ),
   type = 'exit',
   label = "ExitRule",
@@ -210,11 +209,11 @@ updateEndEq(Account = mean2.strat)
 
 # 8.1.1. Strategy General Trade Statistics
 mean2.stats <- t(tradeStats(Portfolios = mean2.portf))
-# View(mean2.stats)
+View(mean2.stats)
 
 # 8.1.2. Strategy Per Trade Statistics
 mean2.perstats <- perTradeStats(Portfolio = mean2.portf)
-# View(mean2.perstats)
+View(mean2.perstats)
 
 # 8.1.3. Strategy Order Book
 mean2.book <- getOrderBook(portfolio = mean2.portf)

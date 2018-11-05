@@ -9,8 +9,8 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2016-12-31'
-start.date <- '2017-01-01'
+init.portf <- '2017-12-31'
+start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
@@ -22,7 +22,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "BABA",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -34,7 +34,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "BABA",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -202,7 +202,7 @@ rm.strat(opt.trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
-          symbols = "BABA",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object
@@ -236,34 +236,29 @@ all.trend1.stats <- opt.trend1.results$tradeStats
 View(all.trend1.stats)
 
 # 7.2.2. Strategy Optimization Net Trading PL
-plot.zoo(
+plot(
   x = all.trend1.stats$Portfolio,
   y = all.trend1.stats$Net.Trading.PL,
   main = "Trend1 Optimization Net Trading PL",
   xlab = "Portfolio",
   ylab = "Net.Trading.PL"
 )
-lines(rollmedian(x = all.trend1.stats$Net.Trading.PL,
-                 k = 5))
 
 # 7.2.3. Strategy Optimization Maximum Drawdown
-plot.zoo(
+plot(
   x = all.trend1.stats$Portfolio,
   y = all.trend1.stats$Max.Drawdown,
   main = "Trend1 Optimization Maximum Drawdown",
   xlab = "Portfolio",
   ylab = "Max.Drawdown"
 )
-lines(rollmedian(x = all.trend1.stats$Max.Drawdown,
-                 k = 5))
+
 # 7.2.4. Strategy Optimization Profit to Maximum Drawdown
-plot.zoo(
+plot(
   x = all.trend1.stats$Portfolio,
   y = all.trend1.stats$Profit.To.Max.Draw,
   main = "Trend1 Optimization Profit to Maximum Drawdown",
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-lines(rollmedian(x = all.trend1.stats$Profit.To.Max.Draw,
-                 k = 5))
 which.max(all.trend1.stats$Profit.To.Max.Draw)

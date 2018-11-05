@@ -4,20 +4,20 @@
 
 # 1. Packages ####
 library("quantstrat")
-rm(list = ls())
+# rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+init.portf <- '2006-12-31'
+start.date <- '2007-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-period_params <- list(n = c(10, 12, 14))
-buythreshold_params <- list(threshold = c(30, 20))
-sellthreshold_params <- list(threshold = c(70, 80))
+period_params <- list(n = c(2:15))
+buythreshold_params <- list(threshold = c(20,25,30))
+sellthreshold_params <- list(threshold = c(70,75,80))
 position_size <- 100
 txn_fee <- -6
 
@@ -44,7 +44,7 @@ stock(primary_id = "SPY",
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
 barChart(SPY)
-addRSI(n = 14)
+addRSI(n = 2)
 
 # 4. Initialization ####
 # 4.1. Strategy Name
@@ -216,7 +216,6 @@ opt.mean2.results <-
 
 # 7.2.1. Strategy Optimization General Trade Statistics
 all.mean2.stats <- opt.mean2.results$tradeStats
-View(t(all.mean2.stats))
 View(all.mean2.stats)
 # 7.2.2. Strategy Optimization Net Trading PL
 plot(
@@ -244,3 +243,4 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
+which.max(all.mean2.stats$Profit.To.Max.Draw)
