@@ -4,20 +4,20 @@
 
 # 1. Packages ####
 library("quantstrat")
-# rm(list = ls())
+rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2006-12-31'
-start.date <- '2007-01-01'
-end.date <- Sys.Date()
+init.portf <- '2017-12-31'
+start.date <- '2018-01-01'
+end.date <- Sys.Date()-1
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
 period_params <- list(n = c(2:15))
-buythreshold_params <- list(threshold = c(20,25,30))
-sellthreshold_params <- list(threshold = c(70,75,80))
+buythreshold_params <- list(threshold = c(20,30))
+sellthreshold_params <- list(threshold = c(70,80))
 position_size <- 100
 txn_fee <- -6
 
