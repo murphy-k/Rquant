@@ -2,7 +2,7 @@
 # ref: http://technical.traders.com/content/TTlink.asp?mo=07&yr=2016
 
 require(quantmod)
-getSymbols("SPY", from = '20015-04-03', to = '2018-04-01')
+getSymbols("SPY")
 x <- Cl(SPY)
 
 
@@ -29,3 +29,5 @@ superPB <- function(x,
   }
   return(data.frame(pb, RMS, -RMS))
 }
+
+
