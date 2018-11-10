@@ -23,7 +23,9 @@ tickers <- suppressMessages((
 ))
 # Current Portfolio ####
 qty <- c(32.537, 102.488, 102.392, 5000)
-quotes <- getQuote(tickers, src = "yahoo")
+quotes <- getQuote(tickers, src = "yahoo") %>%
+  View()
+
 dollar_values <- qty * quotes$Last
 weights <- round((dollar_values / sum(dollar_values) * 100), 2)
 portfolio <-

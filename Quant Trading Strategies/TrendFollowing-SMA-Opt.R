@@ -14,7 +14,7 @@ start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- TRUE
+enable_stops <- FALSE
 fast_sma_params <- list(n = c(2:9))
 slow_sma_params <- list(n = c(10:30))
 position_size <- 10
@@ -22,7 +22,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "BABA",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -34,7 +34,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "BABA",
       currency = "USD",
       multiplier = 1)
 
@@ -202,7 +202,7 @@ rm.strat(opt.trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
-          symbols = "SPY",
+          symbols = "BABA",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object

@@ -11,35 +11,36 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
-
 # 2.1. Initial Settings
-init.portf <- '2016-12-31'
-start.date <- '2017-01-01'
+init.portf <- '2015-12-31'
+start.date <- '2016-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
-period_params <- list(n = c(10, 15, 20, 25))
-buythreshold_params <- list(threshold = c(-1.25, -1.5, -1.75, -2.00))
-sellthreshold_params <- list(threshold = c(1.25, 1.5, 1.75, 2.00))
+enable_stops <- TRUE
+period_params <- list(n = c(10:30))
+buythreshold_params <-
+  list(threshold = c(-1.5, -1.75, -2.00))
+sellthreshold_params <- list(threshold = c(1.5, 1.75, 2.00))
 position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "GBPUSD=X",
   src = "yahoo",
   from = start.date,
   to = end.date,
   index.class = "POSIXct",
-  adjust = T
+  adjust = T,
+  reload.Symbols = FALSE
 )
-
+GBP <- na.approx(`GBPUSD=X`)
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "GBP",
       currency = "USD",
       multiplier = 1)
 
@@ -63,12 +64,12 @@ stock(primary_id = "SPY",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Cl(SPY))
-kpss.test(Cl(SPY))
-hurstexp(Cl(SPY))
+adf.test(Cl(GBP))
+kpss.test(Cl(GBP))
+hurstexp(Cl(GBP))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Cl(SPY)), lag = 1)
+diffx <- diff(log(Cl(GBP)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 adf.test(diffx)
 kpss.test(diffx)
@@ -82,29 +83,42 @@ zscore.fun <- function(x, n) {
 }
 
 # 3.2.2. Z-Score Calculation
-zscore <- zscore.fun(diff(log(Cl(SPY)), lag = 1), n = 24)
-plot(zscore)
-abline(h = 1.5, col = 2)
-abline(h = -1.5, col = 3)
+zscore <-
+  zscore.fun(diff(log(Cl(GBP)), lag = 1),
+             n = sum((period_params$n) / (length(period_params$n))))
+plot.zoo(
+  x = GBP$`GBPUSD=X.Close`,
+  type = "l",
+  xlab = "Date",
+  ylab = "Price",
+  main = "GBP"
+)
+
+plot.zoo(
+  x = zscore,
+  type = "h",
+  xlab = "Date",
+  ylab = c("Z-Score ", sum((period_params$n) / (
+    length(period_params$n)
+  ))),
+  main = "GBP"
+)
+abline(h = 0, col = "black")
+abline(h = 2, col = "green")
+abline(h = -2, col = "red")
 
 # 4. Initialization ####
-
 # 4.1. Strategy Name
 opt.mean3.strat <- "OptMeanStrat3"
-
 # 4.2. Clear Strategy Data
 rm.strat(opt.mean3.strat)
-
 # 4.3. Strategy Object
 strategy(name = opt.mean3.strat, store = TRUE)
-
 # 4.4. Completed Strategy Object
 summary(getStrategy(opt.mean3.strat))
 
 # 5. Definitions ####
-
 # 5.1. Add Strategy Indicator
-
 # 5.1.1. Add Z-Score Indicator
 add.indicator(
   strategy = opt.mean3.strat,
@@ -235,18 +249,14 @@ add.distribution(
 summary(getStrategy(opt.mean3.strat))
 
 # 6. Portfolio Initialization ####
-
 # 6.1. Portfolio Names
 opt.mean3.portf <- "OptMeanPort3"
-
 # 6.2. Clear Portfolio Data
 rm.strat(opt.mean3.portf)
-
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean3.portf,
-          symbols = "SPY",
+          symbols = "GBP",
           initDate = init.portf)
-
 # 6.2. Initialize Account Object
 initAcct(
   name = opt.mean3.strat,
@@ -254,12 +264,10 @@ initAcct(
   initDate = init.portf,
   initEq = init.equity
 )
-
 # 6.3. Initialize Orders Object
 initOrders(portfolio = opt.mean3.portf, initDate = init.portf)
 
-# 7. Optimization #### 
-
+# 7. Optimization ####
 # 7.1. Strategy Optimization Results
 opt.mean3.results <-
   apply.paramset(
@@ -303,3 +311,14 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
+
+plot(
+  x = all.mean3.stats$Portfolio,
+  y = all.mean3.stats$Num.Trades,
+  main = "Mean3 Optimization Number of Trades",
+  xlab = "Portfolio",
+  ylab = "Num.Trades"
+)
+
+all.mean3.stats$NTdPTMD <-
+  (all.mean3.stats$Num.Trades / all.mean3.stats$Profit.To.Max.Draw)

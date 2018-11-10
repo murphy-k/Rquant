@@ -9,13 +9,13 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+init.portf <- '2014-12-31'
+start.date <- '2015-01-01'
 end.date <- Sys.Date()-1
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-period <- 2
+period <- 3
 buythreshold <- 30
 sellthreshold <- 80
 position_size <- 100
