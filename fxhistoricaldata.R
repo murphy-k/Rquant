@@ -42,3 +42,4 @@ fxhistoricaldata <- function
 }
 
 GBPUSD <- fxhistoricaldata('GBPUSD', 'hour', download = TRUE)
+chartSeries(GBPUSD)

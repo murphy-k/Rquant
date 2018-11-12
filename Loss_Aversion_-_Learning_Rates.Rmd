@@ -21,9 +21,13 @@ rm(list=ls())
 
 ### Loss Aversion and the Sunk Cost Fallacy
 #### **Focus:**
-Examine people's decisions in an environment where the 'odds are against against them'. How quickly do people recognize a "bad bet" and under what circumstances?
+~~Examine people's decisions in an environment where the 'odds are against against them'. How quickly do people recognize a "bad bet" and under what circumstances?~~
 
-*Loss Aversion* is the tendency to prefer avoiding losses to acquiring equivalent gains. Individuals commit the *Sunk Cost Fallacy* when they continue a behavior or endeavor as a result of previously invested resources (time, money or effort) (Arkes & Blumer, 1985).
+Examine people's marginal propensity to honor sunk costs.
+
+~~*Loss Aversion* is the tendency to prefer avoiding losses to acquiring equivalent gains.~~ 
+
+Individuals commit the *Sunk Cost Fallacy* when they continue a behavior or endeavor as a result of previously invested resources (time, money or effort) (Arkes & Blumer, 1985).
 
 #### **Research Goal:** 
 Examine the effects of the Sunk Cost fallacy on betting procedure. 

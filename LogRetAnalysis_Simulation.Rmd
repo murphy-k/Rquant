@@ -33,15 +33,15 @@ getSymbols(
   "SPY",
   src = "yahoo",
   auto.assign = TRUE,
-  from = "2008-01-01",
+  from = "1998-01-01",
   to = Sys.Date()
   )
   SPY %>%
   chartSeries(
-  TA = "addSMA(n = 4, col = 'black');
-  addSMA(n=8, col = 'purple');
+  TA = "addSMA(n = 100, col = 'black');
+  addSMA(n=200, col = 'purple');
   addMACD();",
-  subset = "2018::",
+  subset = "1998::",
   theme = "white",
   major.ticks = "months"
   )
@@ -174,7 +174,7 @@ price_sim <- price_sim %>%
 # Visualize Simulation
 price_sim %>%
   ggplot(aes(x = Day, y = Stock.Price, Group = Simulation)) +
-  geom_line(alpha = 0.10, col = "red") +
+  geom_line(alpha = 0.10, col = "purple") +
   ggtitle(str_c(
     "SPY: ",
     M,
