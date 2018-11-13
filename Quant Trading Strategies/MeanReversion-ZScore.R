@@ -12,15 +12,15 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-period <- 30
-buythreshold <- -1.5
-sellthreshold <- 1.5
+period <- 17
+buythreshold <- -2.0
+sellthreshold <- 2.0
 position_size <- 100
 txn_fee <- -6
 
@@ -284,7 +284,7 @@ plot(mean3.equity, main = "Mean3 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 mean3.ret <- Return.calculate(mean3.equity, method = "log")
-bh.ret <- Return.calculate(BABA[, 4], method = "log")
+bh.ret <- Return.calculate(BABA[, 6], method = "log")
 mean3.comp <- cbind(mean3.ret, bh.ret)
 charts.PerformanceSummary(mean3.comp, main = "Mean3 Strategy Performance")
 table.AnnualizedReturns(mean3.comp)

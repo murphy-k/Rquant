@@ -12,8 +12,8 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
@@ -27,7 +27,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "GBPUSD=X",
+  Symbols = "GGN",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,12 +35,12 @@ getSymbols(
   adjust = T,
   reload.Symbols = FALSE
 )
-GBP <- na.approx(`GBPUSD=X`)
+
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "GBP",
+stock(primary_id = "GGN",
       currency = "USD",
       multiplier = 1)
 
@@ -64,12 +64,12 @@ stock(primary_id = "GBP",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Cl(GBP))
-kpss.test(Cl(GBP))
-hurstexp(Cl(GBP))
+adf.test(Cl(GGN))
+kpss.test(Cl(GGN))
+hurstexp(Cl(GGN))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Cl(GBP)), lag = 1)
+diffx <- diff(log(Cl(GGN)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 adf.test(diffx)
 kpss.test(diffx)
@@ -84,14 +84,14 @@ zscore.fun <- function(x, n) {
 
 # 3.2.2. Z-Score Calculation
 zscore <-
-  zscore.fun(diff(log(Cl(GBP)), lag = 1),
+  zscore.fun(diff(log(Cl(GGN)), lag = 1),
              n = sum((period_params$n) / (length(period_params$n))))
 plot.zoo(
-  x = GBP$`GBPUSD=X.Close`,
+  x = GGN$`GGN.Close`,
   type = "l",
   xlab = "Date",
   ylab = "Price",
-  main = "GBP"
+  main = "GGN"
 )
 
 plot.zoo(
@@ -101,7 +101,7 @@ plot.zoo(
   ylab = c("Z-Score ", sum((period_params$n) / (
     length(period_params$n)
   ))),
-  main = "GBP"
+  main = "GGN"
 )
 abline(h = 0, col = "black")
 abline(h = 2, col = "green")
@@ -255,7 +255,7 @@ opt.mean3.portf <- "OptMeanPort3"
 rm.strat(opt.mean3.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean3.portf,
-          symbols = "GBP",
+          symbols = "GGN",
           initDate = init.portf)
 # 6.2. Initialize Account Object
 initAcct(
