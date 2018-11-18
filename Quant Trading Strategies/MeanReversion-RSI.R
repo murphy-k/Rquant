@@ -11,10 +11,10 @@ dev.off(dev.list()["RStudioGD"])
 # 2.1. Initial Settings
 init.portf <- '2013-12-31'
 start.date <- '2014-01-01'
-end.date <- '2016-01-01'
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 1000
-enable_stops <- FALSE
+enable_stops <- TRUE
 period <- 14
 buythreshold <- 30
 sellthreshold <- 70
