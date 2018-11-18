@@ -9,11 +9,11 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2014-12-31'
-start.date <- '2015-01-01'
-end.date <- Sys.Date()
+init.portf <- '2013-12-31'
+start.date <- '2014-01-01'
+end.date <- '2016-01-01'
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
+init.equity <- 10000
 enable_stops <- TRUE
 period_params <- list(n = c(2:14))
 buythreshold_params <- list(threshold = c(20,30))
@@ -23,7 +23,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "BABA",
+  Symbols = "AAPL",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +35,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "BABA",
+stock(primary_id = "AAPL",
       currency = "USD",
       multiplier = 1)
 
@@ -43,8 +43,8 @@ stock(primary_id = "BABA",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(BABA)
-addRSI(n = 2)
+barChart(AAPL)
+addRSI(n = 9)
 
 # 4. Initialization ####
 # 4.1. Strategy Name
@@ -185,7 +185,7 @@ opt.mean2.portf <- "OptMeanPort2"
 rm.strat(opt.mean2.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean2.portf,
-          symbols = "BABA",
+          symbols = "AAPL",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object

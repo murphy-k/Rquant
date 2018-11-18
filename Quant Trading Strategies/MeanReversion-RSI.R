@@ -9,21 +9,21 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2014-12-31'
-start.date <- '2015-01-01'
-end.date <- Sys.Date()-1
+init.portf <- '2013-12-31'
+start.date <- '2014-01-01'
+end.date <- '2016-01-01'
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
-enable_stops <- TRUE
-period <- 3
+init.equity <- 1000
+enable_stops <- FALSE
+period <- 14
 buythreshold <- 30
-sellthreshold <- 80
+sellthreshold <- 70
 position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "TLT",
+  Symbols = "GE",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +35,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "TLT",
+stock(primary_id = "GE",
       currency = "USD",
       multiplier = 1)
 
@@ -43,7 +43,7 @@ stock(primary_id = "TLT",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(TLT)
+barChart(GE)
 addRSI(n = period)
 
 # 4. Initialization ####
@@ -172,7 +172,7 @@ rm.strat(mean2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean2.portf,
-          symbols = "TLT",
+          symbols = "GE",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -225,7 +225,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean2.portf,
-           Symbol = "TLT",
+           Symbol = "GE",
            theme = chart.theme)
 add_RSI(n = period)
 
@@ -237,7 +237,7 @@ plot(mean2.equity, main = "Mean2 Strategy Equity Curve")
 # 8.1.6. Strategy Performance Chart
 mean2.ret <- Return.calculate(mean2.equity, method = "log")
 bh.ret <-
-  Return.calculate(get("TLT")[, 4], method = "log")
+  Return.calculate(get("GE")[, 4], method = "log")
 mean2.comp <- cbind(mean2.ret, bh.ret)
 charts.PerformanceSummary(mean2.comp, main = "Mean2 Strategy Performance")
 table.AnnualizedReturns(mean2.comp)
@@ -247,7 +247,7 @@ table.AnnualizedReturns(mean2.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "TLT"
+  Symbol = "GE"
   ,
   type = 'MAE',
   scale = 'percent'
@@ -256,7 +256,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "TLT",
+  Symbol = "GE",
   type = 'MFE',
   scale = 'percent'
 )

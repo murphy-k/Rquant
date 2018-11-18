@@ -14,7 +14,7 @@ Sys.setenv(TZ = 'UTC')
 # 2.1 Data Downloading
 tickers <- suppressMessages((
   getSymbols(
-    c("CTL", "COST", "HSY", "LGORF"),
+    c("CTL", "COST", "HSY"),
     src = "yahoo",
     auto.assign = TRUE,
     from = start.date,
@@ -22,9 +22,9 @@ tickers <- suppressMessages((
   )
 ))
 # Current Portfolio ####
-qty <- c(32.537, 102.488, 102.392, 5000)
-quotes <- getQuote(tickers, src = "yahoo") %>%
-  View()
+qty <- c(32.537, 102.488, 102.139)
+quotes <- getQuote(tickers, src = "yahoo")
+
 
 dollar_values <- qty * quotes$Last
 weights <- round((dollar_values / sum(dollar_values) * 100), 2)
