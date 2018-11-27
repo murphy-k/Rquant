@@ -27,7 +27,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "GGN",
+  Symbols = "AAPL",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -40,15 +40,13 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "GGN",
+stock(primary_id = "AAPL",
       currency = "USD",
       multiplier = 1)
 
 # 3. Details ####
 # Mean-Reversion Statistical Arbitrage Strategy
 # Stationary Time Series Tests: ADF, KPSS, Hurst Exponent
-# Buy Rules = Buy when Z-Score < -1.5 Treshold
-# Sell Rules = Sell when Z-Score > +1.5 Treshold
 
 # 3.1. Stationary Time Series Tests
 
@@ -64,13 +62,14 @@ stock(primary_id = "GGN",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Cl(GGN))
-kpss.test(Cl(GGN))
-hurstexp(Cl(GGN))
+adf.test(Ad(AAPL))
+kpss.test(Ad(AAPL))
+hurstexp(Ad(AAPL))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Cl(GGN)), lag = 1)
+diffx <- diff(log(Ad(AAPL)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
+
 adf.test(diffx)
 kpss.test(diffx)
 hurstexp(diffx)
@@ -84,14 +83,14 @@ zscore.fun <- function(x, n) {
 
 # 3.2.2. Z-Score Calculation
 zscore <-
-  zscore.fun(diff(log(Cl(GGN)), lag = 1),
+  zscore.fun(diff(log(Ad(AAPL)), lag = 1),
              n = sum((period_params$n) / (length(period_params$n))))
 plot.zoo(
-  x = GGN$`GGN.Close`,
+  x = AAPL$`AAPL.Adjusted`,
   type = "l",
   xlab = "Date",
   ylab = "Price",
-  main = "GGN"
+  main = "AAPL"
 )
 
 plot.zoo(
@@ -101,7 +100,7 @@ plot.zoo(
   ylab = c("Z-Score ", sum((period_params$n) / (
     length(period_params$n)
   ))),
-  main = "GGN"
+  main = "AAPL"
 )
 abline(h = 0, col = "black")
 abline(h = 2, col = "green")
@@ -124,7 +123,7 @@ add.indicator(
   strategy = opt.mean3.strat,
   name = "zscore.fun",
   arguments = list(x = quote(diff(log(
-    Cl(mktdata)
+    Ad(mktdata)
   ), lag = 1))),
   label = "zscore"
 )
@@ -255,7 +254,7 @@ opt.mean3.portf <- "OptMeanPort3"
 rm.strat(opt.mean3.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean3.portf,
-          symbols = "GGN",
+          symbols = "AAPL",
           initDate = init.portf)
 # 6.2. Initialize Account Object
 initAcct(
