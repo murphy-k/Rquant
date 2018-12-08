@@ -22,16 +22,18 @@ portfolio <-
   cbind(SPY$SPY.Close, TLT$TLT.Close, GLD$GLD.Close)
 d_portfolio <- diff(portfolio)
 # Basic Syntax ####
-head(SPY)
-plot.xts(SPY$SPY.Close,
-         main = "SPDR SP500",
-         xlab = "Date",
-         ylab = "Price")
+chartSeries(
+  SPY,
+  name = "SPDR SP500",
+  xlab = "Date",
+  ylab = "Price",
+  bar.type = "ohlc"
+)
 # Plot two charts on same graphical window
-par(mfrow = c(2, 1))
-plot(TSLA$TSLA.Close, main = "Tesla")
-plot(SPY$SPY.Close, main = "SPDR S&P-500")
-
+par(mfrow = c(3, 1))
+plot(TLT$TLT.Close, main = "TLT")
+plot(SPY$SPY.Close, main = "S&P-500")
+plot(GLD$GLD.Close, main = "SPDR Gold ETF")
 # Replot with reduced margin and character sizes
 par(mfrow = c(3, 1),
     mex = 0.75,
@@ -43,15 +45,15 @@ plot(TLT$TLT.Close, main = "Bonds")
 par(mfrow = c(1, 1)) # reset parameters for plot()
 
 # Histograms ####
-roc_SPY <- ROC(SPY$SPY.Close)
+roc_TLT <- ROC(TLT$TLT.Close)
 hist(
-  roc_SPY,
-  main = "SPY Returns Histogram",
+  roc_TLT,
+  main = "TLT Returns Histogram",
   xlab = "Percent Return",
   ylab = "Percent Occurence",
   probability = TRUE,
   breaks = 36
 )
-plot(density(d_portfolio, na.rm = TRUE))
+plot(density(roc_TLT, na.rm = TRUE))
 # Correlation ####
 cor(as.data.frame(portfolio), method = "pearson")

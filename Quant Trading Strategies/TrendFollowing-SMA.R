@@ -15,14 +15,14 @@ end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE
-fastLength <- 20
-slowLength <- 50
+fastLength <- 10
+slowLength <- 14
 position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "AAPL",
+  Symbols = "GE",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -34,7 +34,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "AAPL",
+stock(primary_id = "GE",
       currency = "USD",
       multiplier = 1)
 
@@ -43,7 +43,7 @@ stock(primary_id = "AAPL",
 # Trend-Following Strategy
 # Buy Rule = Buy when Fast SMA > Slow SMA,
 # Sell Rule = Sell when Fast SMA < Slow SMA
-chartSeries(AAPL)
+chartSeries(Ad(GE))
 addSMA(n = fastLength, col = "red")
 addSMA(n = slowLength, col = "blue")
 
@@ -69,14 +69,14 @@ summary(getStrategy(trend1.strat))
 add.indicator(
   strategy = trend1.strat,
   name = "SMA",
-  arguments = list(x = quote(Cl(mktdata)), n = fastLength),
+  arguments = list(x = quote(Ad(mktdata)), n = fastLength),
   label = "FastSMA"
 )
 # 5.1.2. Add Slow SMA
 add.indicator(
   strategy = trend1.strat,
   name = "SMA",
-  arguments = list(x = quote(Cl(mktdata)), n = slowLength),
+  arguments = list(x = quote(Ad(mktdata)), n = slowLength),
   label = "SlowSMA"
 )
 
@@ -129,7 +129,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = 0.025,
     orderside = 'long'
   ),
   type = 'chain',
@@ -145,7 +145,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = 0.025,
     orderside = 'long'
   ),
   type = 'chain',
@@ -184,7 +184,7 @@ rm.strat(trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = trend1.portf,
-          symbols = "AAPL",
+          symbols = "GE",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object
@@ -237,7 +237,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = trend1.portf,
-           Symbol = "AAPL",
+           Symbol = "GE",
            theme = chart.theme)
 add_SMA(n = fastLength)
 add_SMA(n = slowLength, col = "darkblue")
@@ -249,7 +249,7 @@ plot(trend1.equity, main = "Trend1 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 trend1.ret <- Return.calculate(trend1.equity, method = "log")
-bh.ret <- Return.calculate(get("AAPL")[, 4], method = "log")
+bh.ret <- Return.calculate(get("GE")[, 4], method = "log")
 trend1.comp <- cbind(trend1.ret, bh.ret)
 charts.PerformanceSummary(trend1.comp, main = "Trend1 Strategy Performance")
 table.AnnualizedReturns(trend1.comp)
@@ -259,7 +259,7 @@ table.AnnualizedReturns(trend1.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = trend1.portf,
-  Symbol = "AAPL",
+  Symbol = "GE",
   type = 'MAE',
   scale = 'percent'
 )
@@ -267,7 +267,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = trend1.portf,
-  Symbol = "AAPL",
+  Symbol = "GE",
   type = 'MFE',
   scale = 'percent'
 )
