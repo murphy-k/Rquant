@@ -58,7 +58,7 @@ length(oil_crudePrice)
 length(oil_supply)
 
 correlation_coefficient <-
-  cor.test(x = as.vector(oil_crudePrice[1:133, ]), y = as.vector(oil_supply))
+  cor.test(x = as.vector(oil_crudePrice), y = as.vector(oil_supply))
 print(correlation_coefficient)
 
 
