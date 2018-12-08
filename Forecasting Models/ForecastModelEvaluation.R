@@ -548,6 +548,3 @@ acf(residuals(abest))
 pacf(residuals(abest))
 # Ljung.Box Autocorrelation Test
 Box.test(residuals(abest), lag = 10, type = "Ljung")
-
-# 4.21. Coefficients Statistical Significance
-# [-2.0322,2.0322] not statistical significant with 95% confidence.
