@@ -29,5 +29,3 @@ superPB <- function(x,
   }
   return(data.frame(pb, RMS, -RMS))
 }
-
-

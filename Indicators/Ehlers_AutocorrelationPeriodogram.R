@@ -40,20 +40,21 @@ autocorrPeriodogram <-
         M <- lag
       else
         M <- avgLength
-      autocorr[lag,] <- runCor(filt, lag(filt, lag), M)
+      autocorr[lag, ] <- runCor(filt, lag(filt, lag), M)
     }
     autocorr[is.na(autocorr)] <- 0
     # Discrete Fourier Transform for each autocorrelation
     # The sum of the squares of each value represents relative power at each period
     cosinePart <-
-      sinePart <- sqSum <- R <- Pwr <- matrix(0, period2, length(filt))
+      sinePart <-
+      sqSum <- R <- Pwr <- matrix(0, period2, length(filt))
     for (period in period1:period2) {
       for (N in 2:period2) {
-        cosinePart[period,] = cosinePart[period,] + autocorr[N,] * cos(N * 2 * pi / period)
-        sinePart[period,] = sinePart[period,] + autocorr[N,] * sin(N * 2 * pi / period)
+        cosinePart[period, ] = cosinePart[period, ] + autocorr[N, ] * cos(N * 2 * pi / period)
+        sinePart[period, ] = sinePart[period, ] + autocorr[N, ] * sin(N * 2 * pi / period)
       }
-      sqSum[period,] = cosinePart[period,] ^ 2 + sinePart[period,] ^ 2
-      R[period,] <- EMA(sqSum[period,] ^ 2, ratio = 0.2)
+      sqSum[period, ] = cosinePart[period, ] ^ 2 + sinePart[period, ] ^ 2
+      R[period, ] <- EMA(sqSum[period, ] ^ 2, ratio = 0.2)
     }
     R[is.na(R)] <- 0
     # Normalising Power
@@ -66,14 +67,14 @@ autocorrPeriodogram <-
       }
     }
     for (period in 2:period2) {
-      Pwr[period,] <- R[period,] / maxPwr
+      Pwr[period, ] <- R[period, ] / maxPwr
       # to enhance resolution Pwr can be elevated to a power
     }
     # Compute the dominant cycle using the Center of Gravity of the spectrum
     Spx <- Sp <- rep(0, length(filter))
     for (period in period1:period2) {
-      Spx <- Spx + period * Pwr[period,] * (Pwr[period,] >= 0.5)
-      Sp <- Sp + Pwr[period,] * (Pwr[period,] >= 0.5)
+      Spx <- Spx + period * Pwr[period, ] * (Pwr[period, ] >= 0.5)
+      Sp <- Sp + Pwr[period, ] * (Pwr[period, ] >= 0.5)
     }
     dominantCycle <- Spx / Sp
     dominantCycle[is.nan(dominantCycle)] <- 1
