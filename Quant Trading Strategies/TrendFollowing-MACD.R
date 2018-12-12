@@ -9,21 +9,21 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE
-fastema <- 10
-slowema <- 32
+fastema <- 2
+slowema <- 22
 signal <- 6
 position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "AAPL",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +35,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "AAPL",
       currency = "USD",
       multiplier = 1)
 
@@ -44,7 +44,7 @@ stock(primary_id = "SPY",
 # Trend-Following Momentum Strategy
 # Buy Rules = Buy when MACD > MACD Signal
 # Sell Rules = Sell when MACD < MACD Signal
-barChart(SPY)
+barChart(AAPL$AAPL.Adjusted)
 addMACD(fast = fastema,
         slow = slowema,
         signal = signal)
@@ -69,7 +69,7 @@ add.indicator(
   strategy = trend2.strat,
   name = "MACD",
   arguments = list(
-    x = quote(Cl(mktdata)),
+    x = quote(Ad(mktdata)),
     nFast = fastema,
     nSlow = slowema,
     nSig = signal
@@ -181,7 +181,7 @@ rm.strat(trend2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = trend2.portf,
-          symbols = "SPY",
+          symbols = "AAPL",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -234,12 +234,12 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = trend2.portf,
-           Symbol = "SPY",
+           Symbol = "AAPL",
            theme = chart.theme)
 add_MACD(
-  fast = 12,
-  slow = 26,
-  signal = 9,
+  fast = fastema,
+  slow = slowema,
+  signal = signal,
   maType = "EMA"
 )
 
@@ -250,7 +250,7 @@ plot(trend2.equity, main = "Trend2 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 trend2.ret <- Return.calculate(trend2.equity, method = "log")
-bh.ret <- Return.calculate(SPY[, 4], method = "log")
+bh.ret <- Return.calculate(AAPL[, 6], method = "log")
 trend2.comp <- cbind(trend2.ret, bh.ret)
 charts.PerformanceSummary(trend2.comp, main = "Trend2 Strategy Performance")
 table.AnnualizedReturns(trend2.comp)
@@ -260,7 +260,7 @@ table.AnnualizedReturns(trend2.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = trend2.portf,
-  Symbol = 'SPY',
+  Symbol = 'AAPL',
   type = 'MAE',
   scale = 'percent'
 )
@@ -268,7 +268,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = trend2.portf,
-  Symbol = 'SPY',
+  Symbol = 'AAPL',
   type = 'MFE',
   scale = 'percent'
 )

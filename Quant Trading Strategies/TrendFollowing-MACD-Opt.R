@@ -9,14 +9,14 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-fastema_params <- list(nFast = c(2:19))
-slowema_params <- list(nSlow = c(20:35))
+fastema_params <- list(nFast = c(2, 4, 6, 8, 10, 12, 14, 16, 18))
+slowema_params <- list(nSlow = c(20, 22, 24, 26, 28, 30, 32, 34, 36))
 signal_params <- list(nSig = c(6, 9, 12))
 position_size <- 100
 txn_fee <- -6
@@ -264,5 +264,3 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-
-
