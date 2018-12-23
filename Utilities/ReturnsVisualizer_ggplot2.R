@@ -1,0 +1,47 @@
+# ggplot2 Returns Visualizing workspace
+rm(list = ls())
+
+library(dplyr)
+library(quantmod)
+library(ggplot2)
+# Data Download
+getSymbols("SPY", src = "yahoo", from = "1970-01-01")
+
+
+# Structure and head()
+str(SPY)
+head(SPY)
+
+# Convert returns to DailyReturn percentage
+SPY_ret <- dailyReturn(SPY)
+SPY_meanReturn <- mean(SPY_ret)
+SPY_sdReturn <- sd(SPY_ret)
+plus1sd <- SPY_meanReturn + SPY_sdReturn
+minus1sd <- SPY_meanReturn - SPY_sdReturn
+plus2sd <- SPY_meanReturn + (SPY_sdReturn * 2)
+minus2sd <- SPY_meanReturn - (SPY_sdReturn * 2)
+SPY_ret <- as.xts(SPY_ret)
+
+
+
+# View returns as a histogram
+ggplot(data = SPY_ret, aes(SPY_ret$daily.returns)) +
+  geom_histogram(bins = 100,
+                 aes(y = ..density..),
+                 colour = "black",
+                 fill = "white") +
+  #geom_density(alpha=.2, fill="white") +
+  geom_vline(
+    aes(xintercept = mean(SPY_ret$daily.returns)),
+    color = "blue",
+    linetype = "dashed",
+    size = 1
+  ) +
+  geom_vline(aes(xintercept = plus1sd)) +
+  geom_vline(aes(xintercept = minus1sd)) +
+  geom_vline(aes(xintercept = plus2sd)) +
+  geom_vline(aes(xintercept = minus2sd))
+
+summary(SPY_ret * 100)
+ggplot(SPY_ret, aes(x = Index , y = SPY_ret$daily.returns)) +
+  geom_line()

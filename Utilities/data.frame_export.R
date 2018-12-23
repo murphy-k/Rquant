@@ -3,10 +3,10 @@ library(gridExtra)
 # Export as .png ####
 png(
   "test.png",
-  height = 50 * nrow(all.mean2.stats),
-  width = 100 * ncol(all.mean2.stats)
+  height = 3 * nrow(portfolio),
+  width = 150 *ncol(portfolio)
 )
-grid.table(all.mean2.stats)
+grid.table(cor(as.data.frame(portfolio)))
 dev.off()
 
 

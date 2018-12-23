@@ -12,13 +12,13 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2016-12-31'
-start.date <- '2017-01-01'
 end.date <- Sys.Date()
+start.date <- end.date - (365 * 2)
+init.portf <- start.date - 1
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-period_params <- list(n = c(10:30))
+period_params <- list(n = c(10, 15, 20, 25))
 buythreshold_params <-
   list(threshold = c(-1.5, -1.75, -2.00))
 sellthreshold_params <- list(threshold = c(1.5, 1.75, 2.00))
