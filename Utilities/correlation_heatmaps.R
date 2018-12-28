@@ -5,40 +5,18 @@ rm(list=ls())
 
 tickers <-
   c(
-    "AMZN",
-    "FB",
-    "NFLX",
-    "GOOG",
-    "PYPL",
-    "CRM",
-    "GOOGL",
-    "TWTR",
-    "EBAY",
-    "VRSN",
-    "AAPL",
-    "BABA",
-    "BIDU",
-    "NVDA",
-    "TSLA"
+    "FNGU",
+    "TQQQ",
+    "SPY",
+    "TLT"
   )
-getSymbols(tickers, src = "yahoo", from = "2018-01-01")
+getSymbols(tickers, src = "yahoo", from = "2018-01-23")
 
 portfolio <-
-  cbind(AMZN$AMZN.Adjusted,
-        FB$FB.Adjusted,
-        NFLX$NFLX.Adjusted,
-        GOOG$GOOG.Adjusted,
-        PYPL$PYPL.Adjusted,
-        CRM$CRM.Adjusted,
-        GOOGL$GOOGL.Adjusted,
-        TWTR$TWTR.Adjusted,
-        EBAY$EBAY.Adjusted,
-        VRSN$VRSN.Adjusted,
-        AAPL$AAPL.Adjusted,
-        BABA$BABA.Adjusted,
-        BIDU$BIDU.Adjusted,
-        NVDA$NVDA.Adjusted,
-        TSLA$TSLA.Adjusted)
+  cbind(FNGU$FNGU.Adjusted,
+        TQQQ$TQQQ.Adjusted,
+        SPY$SPY.Adjusted,
+        TLT$TLT.Adjusted)
 portfolio <- `names<-`(portfolio,tickers)
 portfolio <- as.data.frame(portfolio)
 
