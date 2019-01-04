@@ -55,7 +55,6 @@ ggplot(data = SPY_ret, aes(x = Index , y = SPY_ret$daily.returns)) +
 
 summary(SPY_ret)
 
-
 zscore <- function(x) {
   round(((last(x) - mean(x)) / sd(x)),digits = 3)
 }
