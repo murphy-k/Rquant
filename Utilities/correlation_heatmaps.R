@@ -1,20 +1,21 @@
 library(quantmod)
 library(reshape2)
 library(ggplot2)
+
 rm(list=ls())
 
 tickers <-
   c(
-    "FNGU",
-    "TQQQ",
+    "AAPL",
+    "QQQ",
     "SPY",
     "TLT"
   )
-getSymbols(tickers, src = "yahoo", from = "2018-01-23")
+getSymbols(tickers, src = "yahoo", from = (Sys.Date()-365*10))
 
 portfolio <-
-  cbind(FNGU$FNGU.Adjusted,
-        TQQQ$TQQQ.Adjusted,
+  cbind(AAPL$AAPL.Adjusted,
+        QQQ$QQQ.Adjusted,
         SPY$SPY.Adjusted,
         TLT$TLT.Adjusted)
 portfolio <- `names<-`(portfolio,tickers)
