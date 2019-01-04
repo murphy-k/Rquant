@@ -1,5 +1,5 @@
 library(quantmod)
-getSymbols("GE", src = "yahoo", from = "2018-01-01" to = "2019-01-03")
+getSymbols("GE", src = "yahoo", from = "2018-01-01", to = "2019-01-03")
 df <-
   data.frame(
     Date = index(GE),
