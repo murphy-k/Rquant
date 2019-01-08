@@ -1,6 +1,7 @@
 # Technical Analysis
-rm(list=ls())
+rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
+
 # 1. Data ####
 # 1.1 Packages
 library("TTR")
@@ -11,7 +12,7 @@ library("PerformanceAnalytics")
 getSymbols("SPY", src = "yahoo")
 
 # 1.5. Delimit data range
-x <- window(SPY['2007-12-31::2018-12-09'])
+x <- window(SPY['2000-12-31::2019-01-01'])
 
 # 1.4. Technical Analysis Charts
 barChart(x)
@@ -115,7 +116,7 @@ barChart(x,
          TA = NULL)
 addSMI(n = 13)
 
-# 2.2.7. Williams %R(14)
+# 2.2.7. Williams %R(14) ####
 wpr <- WPR(cbind(Hi(x), Lo(x), Cl(x)), n = 14)
 # Technical Analysis Chart
 barChart(x)
@@ -295,7 +296,7 @@ smitr <-
   ))
 smitr[is.na(smitr)] <- 0
 
-# 3.1.10. Williams %R(14) Trading Signals
+# 3.1.10. Williams %R(14) Trading Signals ####
 lineChart(x)
 addWPR(n = 14)
 # Bands Crossover Trading Signals
@@ -476,7 +477,7 @@ for (i in 1:length(Cl(x))) {
     ifelse(ccitr[i] == 1, 1, ifelse(ccitr[i] == -1, 0, ccisig[i - 1]))
 }
 ccisig[is.na(ccisig)] <- 1
-test <- cbind(ccitr,ccisig)
+test <- cbind(ccitr, ccisig)
 test
 # 4.6. Moving Averages Covergence/Divergence MACD(12,26,9) Trading Strategies
 # Signal and Centerline Crossover Trading Strategies
@@ -520,7 +521,7 @@ for (i in 1:length(Cl(x))) {
 }
 smisig[is.na(smisig)] <- 1
 
-# 4.10. Williams %R(14) Trading Strategy
+# 4.10. Williams %R(14) Trading Strategy ####
 # Bands Crossover Trading Strategy
 wprsig <- ifelse(wprtr > 1, 0, 1)
 for (i in 1:length(Cl(x))) {
@@ -791,7 +792,7 @@ colnames(smicomp) <-
 table.AnnualizedReturns(smicomp)
 charts.PerformanceSummary(smicomp)
 
-# 5.10. Williams %R(14) Strategy Performance Comparison
+# 5.10. Williams %R(14) Strategy Performance Comparison ####
 # Bands Crossover Strategy Returns/Equity Curve
 wprstrat <- ret * wprsig
 wprstratc <-
