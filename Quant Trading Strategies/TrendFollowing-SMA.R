@@ -9,20 +9,22 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2007-12-31'
-start.date <- '2008-01-01'
+init.portf <- "2016-12-31"
+start.date <- "2017-01-01"
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE
 fastLength <- 10
-slowLength <- 14
+slowLength <- 20
 position_size <- 100
-txn_fee <- -6
+txn_fee <- -6.00
+initial_stop <- 0.05
+trailing_stop <- 0.05
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "GE",
+  Symbols = "MJ",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -34,7 +36,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "GE",
+stock(primary_id = "MJ",
       currency = "USD",
       multiplier = 1)
 
@@ -43,9 +45,9 @@ stock(primary_id = "GE",
 # Trend-Following Strategy
 # Buy Rule = Buy when Fast SMA > Slow SMA,
 # Sell Rule = Sell when Fast SMA < Slow SMA
-chartSeries(Ad(GE))
-addSMA(n = fastLength, col = "red")
-addSMA(n = slowLength, col = "blue")
+chartSeries(MJ, theme = "white")
+addSMA(n = fastLength, col = "black")
+addSMA(n = slowLength, col = "green")
 
 # 4. Initialization ####
 
@@ -129,7 +131,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.025,
+    threshold = initial_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -145,7 +147,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.025,
+    threshold = trailing_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -184,7 +186,7 @@ rm.strat(trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = trend1.portf,
-          symbols = "GE",
+          symbols = "MJ",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object
@@ -237,7 +239,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = trend1.portf,
-           Symbol = "GE",
+           Symbol = "MJ",
            theme = chart.theme)
 add_SMA(n = fastLength)
 add_SMA(n = slowLength, col = "darkblue")
@@ -249,7 +251,7 @@ plot(trend1.equity, main = "Trend1 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 trend1.ret <- Return.calculate(trend1.equity, method = "log")
-bh.ret <- Return.calculate(get("GE")[, 4], method = "log")
+bh.ret <- Return.calculate(get("MJ")[, 4], method = "log")
 trend1.comp <- cbind(trend1.ret, bh.ret)
 charts.PerformanceSummary(trend1.comp, main = "Trend1 Strategy Performance")
 table.AnnualizedReturns(trend1.comp)
@@ -259,7 +261,7 @@ table.AnnualizedReturns(trend1.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = trend1.portf,
-  Symbol = "GE",
+  Symbol = "MJ",
   type = 'MAE',
   scale = 'percent'
 )
@@ -267,7 +269,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = trend1.portf,
-  Symbol = "GE",
+  Symbol = "MJ",
   type = 'MFE',
   scale = 'percent'
 )

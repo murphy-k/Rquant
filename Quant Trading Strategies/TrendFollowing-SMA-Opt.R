@@ -9,8 +9,8 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
+init.portf <- '2007-12-31'
+start.date <- '2008-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
@@ -19,6 +19,8 @@ fast_sma_params <- list(n = c(2:10))
 slow_sma_params <- list(n = c(40:50))
 position_size <- 100
 txn_fee <- -6
+initial_stop <- 0.05
+trailing_stop <- 0.07
 
 # 2.2. Data Downloading
 getSymbols(
@@ -126,7 +128,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = initial_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -142,7 +144,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = trailing_stop,
     orderside = 'long'
   ),
   type = 'chain',
