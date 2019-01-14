@@ -13,9 +13,11 @@ init.portf <- '2017-12-31'
 start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
+init.equity <- 10000
 enable_stops <- TRUE
-period <- 6
+initial_stop <- 0.15
+trailing_stop <- 0.15
+period <- 14
 buythreshold <- 30
 sellthreshold <- 70
 position_size <- 100
@@ -23,7 +25,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "MJ",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +37,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "MJ",
       currency = "USD",
       multiplier = 1)
 
@@ -43,7 +45,7 @@ stock(primary_id = "SPY",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(SPY)
+barChart(MJ)
 addRSI(n = period)
 
 # 4. Initialization ####
@@ -117,7 +119,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = initial_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -133,7 +135,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = trailing_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -172,7 +174,7 @@ rm.strat(mean2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean2.portf,
-          symbols = "SPY",
+          symbols = "MJ",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -225,7 +227,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean2.portf,
-           Symbol = "SPY",
+           Symbol = "MJ",
            theme = chart.theme)
 add_RSI(n = period)
 
@@ -237,7 +239,7 @@ plot(mean2.equity, main = "Mean2 Strategy Equity Curve")
 # 8.1.6. Strategy Performance Chart
 mean2.ret <- Return.calculate(mean2.equity, method = "log")
 bh.ret <-
-  Return.calculate(get("SPY")[, 4], method = "log")
+  Return.calculate(get("MJ")[, 4], method = "log")
 mean2.comp <- cbind(mean2.ret, bh.ret)
 charts.PerformanceSummary(mean2.comp, main = "Mean2 Strategy Performance")
 table.AnnualizedReturns(mean2.comp)
@@ -247,7 +249,7 @@ table.AnnualizedReturns(mean2.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "SPY"
+  Symbol = "MJ"
   ,
   type = 'MAE',
   scale = 'percent'
@@ -256,7 +258,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "SPY",
+  Symbol = "MJ",
   type = 'MFE',
   scale = 'percent'
 )

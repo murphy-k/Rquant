@@ -12,22 +12,22 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '1997-01-01'
-start.date <- '1997-01-02'
+init.portf <- '2017-12-31'
+start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
+init.equity <- 10000
 enable_stops <- TRUE
-period <- 20
-buythreshold <- -1.5
-sellthreshold <- 1.5
-position_size <- 100
-txn_fee <- -6
 initial_stop <- 0.05
 trailing_stop <- 0.07
+period <- 22
+buythreshold <- -1.5
+sellthreshold <- 1.75
+position_size <- 100
+txn_fee <- -6
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "UUP",
+  Symbols = "MJ",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -39,7 +39,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "UUP",
+stock(primary_id = "MJ",
       currency = "USD",
       multiplier = 1)
 
@@ -64,12 +64,12 @@ stock(primary_id = "UUP",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Ad(UUP))
-kpss.test(Ad(UUP))
-hurstexp(Ad(UUP))
+adf.test(Ad(MJ))
+kpss.test(Ad(MJ))
+hurstexp(Ad(MJ))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Ad(UUP)), lag = 1)
+diffx <- diff(log(Ad(MJ)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 adf.test(diffx)
 kpss.test(diffx)
@@ -83,17 +83,17 @@ zscore.fun <- function(x, n) {
 }
 
 # 3.2.2. Z-Score Calculation
-zscore <- zscore.fun(diff(log(Cl(UUP)), lag = 1), n = period)
+zscore <- zscore.fun(diff(log(Cl(MJ)), lag = 1), n = period)
 plot.zoo(
   zscore,
   xlab = "Date",
   ylab = "Z-Score",
-  main = "UUP Z-Score",
+  main = "MJ Z-Score",
   type = "h"
 )
 abline(h = sellthreshold, col = "red")
 abline(h = buythreshold, col = "green")
-abline(h = last(zscore$UUP.Close), col = "blue")
+abline(h = last(zscore$MJ.Close), col = "blue")
 # 4. Initialization ####
 # 4.1. Strategy Name
 mean3.strat <- "MeanStrat3"
@@ -222,7 +222,7 @@ rm.strat(mean3.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean3.portf,
-          symbols = "UUP",
+          symbols = "MJ",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -275,7 +275,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean3.portf,
-           Symbol = "UUP",
+           Symbol = "MJ",
            theme = chart.theme)
 
 # 8.1.5. Strategy Equity Curve
@@ -285,7 +285,7 @@ plot(mean3.equity, main = "Mean3 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 mean3.ret <- Return.calculate(mean3.equity, method = "log")
-bh.ret <- Return.calculate(UUP$UUP.Adjusted, method = "log")
+bh.ret <- Return.calculate(MJ$MJ.Adjusted, method = "log")
 mean3.comp <- cbind(mean3.ret, bh.ret)
 charts.PerformanceSummary(mean3.comp, main = "Mean3 Strategy Performance")
 table.AnnualizedReturns(mean3.comp)
@@ -295,7 +295,7 @@ table.AnnualizedReturns(mean3.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean3.portf,
-  Symbol = 'UUP',
+  Symbol = 'MJ',
   type = 'MAE',
   scale = 'percent'
 )
@@ -303,7 +303,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean3.portf,
-  Symbol = 'UUP',
+  Symbol = 'MJ',
   type = 'MFE',
   scale = 'percent'
 )
