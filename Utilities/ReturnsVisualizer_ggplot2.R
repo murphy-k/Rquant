@@ -8,7 +8,9 @@ library(ggplot2)
 library(magrittr)
 # Data Download
 
-getSymbols("SPY", src = "yahoo", from = Sys.Date()-10*365)
+getSymbols("SPY",
+           src = "yahoo", 
+           from = "2018-01-01")
 
 
 # Structure and head()
@@ -49,14 +51,17 @@ ggplot(data = SPY_ret, aes(x = Index , y = SPY_ret$daily.returns)) +
   geom_line() +
   geom_hline(
     yintercept = c(plus1sd, plus2sd, minus1sd, minus2sd),
-    color = "blue",
-    linetype = "dashed"
-  )
+    color = "black",
+    linetype = "solid"
+  ) +
+  geom_hline(yintercept = SPY_meanReturn,
+             color = "blue",
+             linetype = "dashed")
 
 summary(SPY_ret)
 
 zscore <- function(x) {
-  round(((last(x) - mean(x)) / sd(x)),digits = 3)
+  round(((-0.17 - mean(x)) / sd(x)), digits = 3)
 }
 z_score <- zscore(SPY_ret)
-pnorm(z_score, lower.tail = FALSE)
+pnorm(z_score, lower.tail = TRUE)
