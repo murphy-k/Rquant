@@ -1,10 +1,7 @@
 library(quantmod)
 library(lubridate)
 
-fxhistoricaldata <- function
-(Symbol,
- timeframe,
- download = FALSE)
+fxhistoricaldata <- function(Symbol, timeframe, download = FALSE)
 {
   # setup temp folder
   temp.folder <- paste(getwd(), 'temp', sep = '/')
@@ -30,7 +27,6 @@ fxhistoricaldata <- function
       )
     download.file(downloadfile, filename,  mode = 'wb')
   }
-  
   tempdf <- read.csv(filename)
   colnames(tempdf) <-
     c("Curr", "Date", "Open", "High", "Low", "Close")
@@ -41,5 +37,6 @@ fxhistoricaldata <- function
   return(out)
 }
 
-GBPUSD <- fxhistoricaldata('GBPUSD', 'hour', download = TRUE)
-chartSeries(GBPUSD)
+EURUSD <- fxhistoricaldata('EUR_USD', 'hour', download = TRUE)
+chartSeries(EURUSD, subset = "2019-01-01::")
+

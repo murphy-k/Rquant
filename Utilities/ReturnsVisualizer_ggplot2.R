@@ -8,7 +8,7 @@ library(magrittr)
 
 # Data Download
 ticker <- "DAN"
-lookback <- 100
+lookback <- 1000
 getSymbols(ticker,
            src = "yahoo",
            from = "2007-01-01",
@@ -16,13 +16,13 @@ getSymbols(ticker,
 
 # Subset data
 x <-
-  window(get(ticker), start = Sys.Date() - lookback, end = Sys.Date())
+  window(get(ticker), start = (Sys.Date()-lookback), end = Sys.Date())
 chartSeries(x)
 
 # Convert returns to DailyReturn percentage
 x_ret <- dailyReturn(x)
 x_ret <- as.xts(x_ret)
-pacf(x_ret, lag.max = 100)
+acf(x_ret, lag.max = 100)
 # View Returns as a line plot
 ggplot(data = x_ret, aes(x = Index , y = x_ret$daily.returns)) +
   geom_line() +
