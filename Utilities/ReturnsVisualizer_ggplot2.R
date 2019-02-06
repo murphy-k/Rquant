@@ -7,24 +7,28 @@ library(ggplot2)
 library(magrittr)
 
 # Data Download
-ticker <- "DAN"
-lookback <- 1000
-getSymbols(ticker,
-           src = "yahoo",
-           from = "2007-01-01",
-           warnings = FALSE)
+ticker <- "SPY"
+start_date <- "1980-01-01"
+end_date <- Sys.Date()
+getSymbols(
+  ticker,
+  src = "yahoo",
+  from = start_date,
+  to = end_date,
+  warnings = FALSE
+)
 
 # Subset data
 x <-
-  window(get(ticker), start = (Sys.Date()-lookback), end = Sys.Date())
+  window(get(ticker), start = start_date, end = end_date)
 chartSeries(x)
 
-# Convert returns to DailyReturn percentage
-x_ret <- dailyReturn(x)
+# Convert returns to Return percentage
+x_ret <- yearlyReturn(x)
 x_ret <- as.xts(x_ret)
 acf(x_ret, lag.max = 100)
 # View Returns as a line plot
-ggplot(data = x_ret, aes(x = Index , y = x_ret$daily.returns)) +
+ggplot(data = x_ret, aes(x = Index , y = x_ret[, 1])) +
   geom_line() +
   geom_hline(yintercept = mean(x_ret),
              color = "blue",
@@ -41,14 +45,14 @@ ggplot(data = x_ret, aes(x = Index , y = x_ret$daily.returns)) +
   )
 
 # View returns as a histogram
-ggplot(data = x_ret, aes(x_ret$daily.returns)) +
-  geom_histogram(bins = 200,
+ggplot(data = x_ret, aes(x_ret[, 1])) +
+  geom_histogram(bins = (length(x_ret)*0.5),
                  aes(y = ..density..),
                  colour = "black",
                  fill = "white") +
   geom_density(alpha = .2, fill = "white") +
   geom_vline(
-    aes(xintercept = mean(x_ret$daily.returns)),
+    aes(xintercept = mean(x_ret[, 1])),
     color = "blue",
     linetype = "dashed",
     size = 1
@@ -56,11 +60,11 @@ ggplot(data = x_ret, aes(x_ret$daily.returns)) +
   geom_vline(aes(xintercept = mean(x_ret) + sd(x_ret))) +
   geom_vline(aes(xintercept = mean(x_ret) - sd(x_ret))) +
   geom_vline(aes(xintercept = mean(x_ret) + (sd(x_ret) * 2))) +
-  geom_vline(aes(xintercept = mean(x_ret) - (sd(x_ret) * 2)))
+  geom_vline(aes(xintercept = mean(x_ret) - (sd(x_ret) * 2))) 
 
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
-z_score <- zscore(x_ret, p = 0.1)
+z_score <- zscore(x_ret, p = last(x_ret))
 z_score
 pnorm(z_score, lower.tail = FALSE)

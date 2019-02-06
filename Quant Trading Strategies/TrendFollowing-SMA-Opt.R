@@ -24,7 +24,7 @@ trailing_stop <- 0.07
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "GE",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -36,7 +36,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "GE",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -204,7 +204,7 @@ rm.strat(opt.trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
-          symbols = "GE",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object
