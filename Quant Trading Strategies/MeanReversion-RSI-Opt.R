@@ -13,12 +13,12 @@ init.portf <- '2017-12-31'
 start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
-enable_stops <- TRUE
+init.equity <- 10000
+enable_stops <- FALSE
 period_params <- list(n = c(2:14))
 buythreshold_params <- list(threshold = c(20,30))
 sellthreshold_params <- list(threshold = c(70,80))
-position_size <- 1000
+position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading

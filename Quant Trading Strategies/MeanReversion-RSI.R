@@ -15,8 +15,8 @@ end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE
-initial_stop <- 0.15
-trailing_stop <- 0.15
+initial_stop <- 0.075
+trailing_stop <- 0.075
 period <- 14
 buythreshold <- 30
 sellthreshold <- 70
@@ -25,7 +25,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "MJ",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -37,7 +37,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "MJ",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -45,7 +45,7 @@ stock(primary_id = "MJ",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(MJ)
+barChart(SPY)
 addRSI(n = period)
 
 # 4. Initialization ####
@@ -174,7 +174,7 @@ rm.strat(mean2.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean2.portf,
-          symbols = "MJ",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -227,7 +227,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean2.portf,
-           Symbol = "MJ",
+           Symbol = "SPY",
            theme = chart.theme)
 add_RSI(n = period)
 
@@ -239,7 +239,7 @@ plot(mean2.equity, main = "Mean2 Strategy Equity Curve")
 # 8.1.6. Strategy Performance Chart
 mean2.ret <- Return.calculate(mean2.equity, method = "log")
 bh.ret <-
-  Return.calculate(get("MJ")[, 4], method = "log")
+  Return.calculate(get("SPY")[, 4], method = "log")
 mean2.comp <- cbind(mean2.ret, bh.ret)
 charts.PerformanceSummary(mean2.comp, main = "Mean2 Strategy Performance")
 table.AnnualizedReturns(mean2.comp)
@@ -249,7 +249,7 @@ table.AnnualizedReturns(mean2.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "MJ"
+  Symbol = "SPY"
   ,
   type = 'MAE',
   scale = 'percent'
@@ -258,7 +258,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean2.portf,
-  Symbol = "MJ",
+  Symbol = "SPY",
   type = 'MFE',
   scale = 'percent'
 )

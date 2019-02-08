@@ -9,7 +9,7 @@ library(magrittr)
 # Data Download
 ticker <- "SPY"
 start_date <- "1980-01-01"
-end_date <- Sys.Date()
+end_date <- "2018-12-31"
 getSymbols(
   ticker,
   src = "yahoo",
