@@ -49,12 +49,12 @@ EURUSD$Adjusted <- EURUSD$Close
 str(EURUSD)
 
 # SMA Backtest ####
-init.portf <- "2018-10-20"
-start.date <- "2018-10-21"
+init.portf <- start(EURUSD) - 100000
+start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
+enable_stops <- TRUE
 fastLength <- 10
 slowLength <- 15
 position_size <- 10000
