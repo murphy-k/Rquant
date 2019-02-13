@@ -55,18 +55,12 @@ end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
-fastLength <- 2
-slowLength <- 11
+fastLength <- 10
+slowLength <- 15
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0005
 trailing_stop <- 0.0005
-fastLength <- 8
-slowLength <- 12
-position_size <- 10000
-txn_fee <- -1.00
-initial_stop <- 0.05
-trailing_stop <- 0.05
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
