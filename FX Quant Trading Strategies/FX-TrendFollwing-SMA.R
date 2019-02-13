@@ -55,21 +55,18 @@ end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
-<<<<<<< HEAD
 fastLength <- 2
 slowLength <- 11
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0005
 trailing_stop <- 0.0005
-=======
 fastLength <- 8
 slowLength <- 12
 position_size <- 10000
 txn_fee <- -1.00
 initial_stop <- 0.05
 trailing_stop <- 0.05
->>>>>>> f15dd3f344ea920a6273338efc474bf67bd82363
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
@@ -89,10 +86,7 @@ addSMA(n = fastLength, col = "black")
 addSMA(n = slowLength, col = "blue")
 
 # 4. Initialization ####
-<<<<<<< HEAD
-=======
 
->>>>>>> f15dd3f344ea920a6273338efc474bf67bd82363
 # 4.1. Strategy Name
 trend1.strat <- "TrendStrat1"
 
@@ -245,7 +239,7 @@ initOrders(portfolio = trend1.portf, initDate = init.portf)
 # 7. Application ####
 
 # 7.1. Strategy Application to Market Data
-applyStrategy(strategy = trend1.strat, portfolios = trend1.portf,)
+applyStrategy(strategy = trend1.strat, portfolios = trend1.portf)
 
 # 7.2 Strategy Updating
 # Specific Order Must be Followed
@@ -270,13 +264,10 @@ round_df <- function(df, digits) {
 # 8.1. Strategy Trading Statistics
 
 # 8.1.1. Strategy General Trade Statistics
-<<<<<<< HEAD
 trend1.stats <- round_df((tradeStats(Portfolios = trend1.portf)))
 View(t(trend1.stats))
-=======
 trend1.stats <- round_df(t(tradeStats(Portfolios = trend1.portf)))
 View(trend1.stats)
->>>>>>> f15dd3f344ea920a6273338efc474bf67bd82363
 
 # 8.1.2. Strategy Per Trade Statistics
 trend1.perstats <- round_df(perTradeStats(Portfolio = trend1.portf))
@@ -293,11 +284,7 @@ chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = trend1.portf,
            Symbol = "EURUSD",
-<<<<<<< HEAD
            theme = chart.theme,Dates = "2019-01-10::")
-=======
-           theme = chart.theme)
->>>>>>> f15dd3f344ea920a6273338efc474bf67bd82363
 add_SMA(n = fastLength)
 add_SMA(n = slowLength, col = "darkblue")
 
