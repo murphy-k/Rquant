@@ -54,9 +54,9 @@ start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
-fastLength <- 2
-slowLength <- 11
+enable_stops <- TRUE
+fastLength <- 10
+slowLength <- 15
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0005
