@@ -49,8 +49,8 @@ EURUSD$Adjusted <- EURUSD$Close
 str(EURUSD)
 
 # SMA Backtest ####
-init.portf <- "2018-10-20"
-start.date <- "2018-10-21"
+init.portf <- start(EURUSD) - 100000
+start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
@@ -61,12 +61,6 @@ position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0005
 trailing_stop <- 0.0005
-fastLength <- 8
-slowLength <- 12
-position_size <- 10000
-txn_fee <- -1.00
-initial_stop <- 0.05
-trailing_stop <- 0.05
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
