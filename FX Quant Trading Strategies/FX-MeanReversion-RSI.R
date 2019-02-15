@@ -51,29 +51,19 @@ str(EURUSD)
 periodicity(EURUSD)
 
 # RSI Backtest ####
-init.portf <- start(EURUSD) - 100000
+init.portf <- start(EURUSD) - 10000
 start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
-period <- 14
+enable_stops <- TRUE
+period <- 10
 buythreshold <- 30
 sellthreshold <- 70
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0015
 trailing_stop <- 0.0015
-
-# 2.2. Data Downloading
-getSymbols(
-  Symbols = "EURUSD",
-  src = "yahoo",
-  from = start.date,
-  to = end.date,
-  index.class = "POSIXct",
-  adjust = T
-)
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")

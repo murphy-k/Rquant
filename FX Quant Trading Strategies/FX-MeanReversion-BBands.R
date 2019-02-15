@@ -1,6 +1,7 @@
-# Trading Strategy: Trend-Following Momentum
-# Technical Indicators: MACD
-# Optimization/Walk Forward Analysis: Yes/No
+# Trading Strategy: Mean-Reversion "Bollinger Bands"
+# Technical Indicators: BBands
+# Optimization/Walk Forward Analysis: No/No
+
 library(quantmod)
 library(lubridate)
 library(quantstrat)
@@ -49,21 +50,19 @@ EURUSD <- fxhistoricaldata("EUR_USD", timeframe, download = TRUE)
 str(EURUSD)
 periodicity(EURUSD)
 
-# MACD Optimization ####
-init.portf <- start(EURUSD) - 100000
+# BBands Optimization ####
+init.portf <- start(EURUSD) - 10000
 start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
-fastema_params <- list(nFast = c(2, 4, 6, 8, 10, 12, 14, 16, 18))
-slowema_params <- list(nSlow = c(20, 22, 24, 26, 28, 30, 32, 34, 36))
-signal_params <- list(nSig = c(6, 9, 12))
+period <- 7
+sd <- 2.0
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0015
 trailing_stop <- 0.0015
-
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")
@@ -74,63 +73,61 @@ stock(primary_id = "EURUSD",
       multiplier = 1)
 
 # 3. Details ####
-# Trend-Following Strategy
-# Buy Rules = Buy when MACD line > signal line
-# Sell Rules = Sell when MACD line < signal line
-barChart(EURUSD, theme = "white")
-addMACD(fast = 12,
-        slow = 26,
-        signal = 9)
+
+# Mean-Reversion Strategy
+# Buy Rules = Buy when Close < Lower Band
+# Sell Rules = Sell when Close > Upper Band
+lineChart(EURUSD)
+addBBands(n = period, sd = sd)
 
 # 4. Initialization ####
+
 # 4.1. Strategy Name
-opt.trend2.strat <- "OptTrendStrat2"
+mean1.strat <- "MeanStrat1"
 
 # 4.2. Clear Strategy Data
-rm.strat(opt.trend2.strat)
+rm.strat(mean1.strat)
 
 # 4.3. Strategy Object
-strategy(name = opt.trend2.strat, store = TRUE)
+strategy(name = mean1.strat, store = TRUE)
 
 # 4.4. Completed Strategy Object
-summary(getStrategy(opt.trend2.strat))
+summary(getStrategy(mean1.strat))
 
 # 5. Definitions ####
+
 # 5.1. Add Strategy Indicator
+
+# 5.1.1. Add BBands
 add.indicator(
-  strategy = opt.trend2.strat,
-  name = "MACD",
-  arguments = list(x = quote(Cl(mktdata))),
-  label = "MACD"
+  strategy = mean1.strat,
+  name = "BBands",
+  arguments = list(HLC = quote(HLC(mktdata)), n = 20, sd = 2),
+  label = 'BBands'
 )
 
 # 5.2. Signals ####
 
 # 5.2.1. Add Buying Signal
 add.signal(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = "sigCrossover",
-  arguments = list(
-    columns = c("macd", "signal"),
-    relationship = "gt"
-  ),
+  arguments = list(columns = c("Close", "dn"), relationship = "lt"),
   label = "BuySignal"
 )
 # 5.2.2. Add Selling Signal
 add.signal(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = "sigCrossover",
-  arguments = list(
-    columns = c("macd", "signal"),
-    relationship = "lt"
-  ),
+  arguments = list(columns = c("Close", "up"), relationship = "gt"),
   label = "SellSignal"
 )
 
 # 5.3. Rules ####
+
 # 5.3.1. Add Enter Rule
 add.rule(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
@@ -145,14 +142,14 @@ add.rule(
 )
 # Stop-Loss and Trailing-Stop Rules
 add.rule(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = initial_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -161,14 +158,14 @@ add.rule(
   enabled = enable_stops
 )
 add.rule(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = trailing_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -179,7 +176,7 @@ add.rule(
 
 # 5.3.2. Add Exit Rule
 add.rule(
-  strategy = opt.trend2.strat,
+  strategy = mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "SellSignal",
@@ -194,105 +191,106 @@ add.rule(
   enabled = T
 )
 
-# 5.4. Parameters ####
-# Fast EMA
-add.distribution(
-  strategy = opt.trend2.strat,
-  paramset.label = 'OptTrendPar2',
-  component.type = 'indicator',
-  component.label = 'MACD',
-  variable = fastema_params,
-  label = 'nFastEMA'
-)
-# Slow EMA
-add.distribution(
-  strategy = opt.trend2.strat,
-  paramset.label = 'OptTrendPar2',
-  component.type = 'indicator',
-  component.label = 'MACD',
-  variable = slowema_params,
-  label = 'nSlowEMA'
-)
-# Signal EMA
-add.distribution(
-  strategy = opt.trend2.strat,
-  paramset.label = 'OptTrendPar2',
-  component.type = 'indicator',
-  component.label = 'MACD',
-  variable = signal_params,
-  label = 'nSigEMA'
-)
-
 # 5.4. Completed Strategy Object
-summary(getStrategy(opt.trend2.strat))
+summary(getStrategy(mean1.strat))
 
 # 6. Portfolio Initialization ####
 
 # 6.1. Portfolio Names
-opt.trend2.portf <- "OptTrendPort2"
+mean1.portf <- "MeanPort1"
 
 # 6.2. Clear Portfolio Data
-rm.strat(opt.trend2.portf)
+rm.strat(mean1.portf)
 
 # 6.3. Initialize Portfolio Object
-initPortf(name = opt.trend2.portf,
+initPortf(name = mean1.portf,
           symbols = "EURUSD",
           initDate = init.portf)
 
-# 6.4. Initialize Account Object
+# 6.2. Initialize Account Object
 initAcct(
-  name = opt.trend2.strat,
-  portfolios = opt.trend2.portf,
+  name = mean1.strat,
+  portfolios = mean1.portf,
   initDate = init.portf,
   initEq = init.equity
 )
 
-# 6.5. Initialize Orders Object
-initOrders(portfolio = opt.trend2.portf, initDate = init.portf)
+# 6.3. Initialize Orders Object
+initOrders(portfolio = mean1.portf, initDate = init.portf)
 
-# 7. Optimization ####
+# 7. Application ####
 
-# 7.1. Strategy Optimization Results
-opt.trend2.results <-
-  apply.paramset(
-    strategy.st = opt.trend2.strat,
-    paramset.label = 'OptTrendPar2',
-    portfolio.st = opt.trend2.portf,
-    account.st = opt.trend2.strat,
-    nsamples = 0,
-    verbose = TRUE
-  )
+# 7.1. Strategy Application to Market Data
+applyStrategy(strategy = mean1.strat, portfolios = mean1.portf)
 
-# 7.2. Strategy Optimization Trading Statistics
+# 7.2 Strategy Updating
+# Specific Order Must be Followed
 
-# 7.2.1. Strategy Optimization General Trade Statistics
-all.trend2.stats <- opt.trend2.results$tradeStats
-View(all.trend2.stats)
+# 7.2.1. Update Portfolio
+updatePortf(Portfolio = mean1.portf)
 
-# 7.2.2. Strategy Optimization Net Trading PL
-plot(
-  x = all.trend2.stats$Portfolio,
-  y = all.trend2.stats$Net.Trading.PL,
-  main = "Trend2 Optimization Net Trading PL",
-  xlab = "Portfolio",
-  ylab = "Net.Trading.PL"
+# 7.2.2. Update Account
+updateAcct(name = mean1.strat)
+
+# 7.2.3. Update Equity
+updateEndEq(Account = mean1.strat)
+
+# 8. Reporting ####
+
+# 8.1. Strategy Trading Statistics
+
+# 8.1.1. Strategy General Trade Statistics
+mean1.stats <- t(tradeStats(Portfolios = mean1.portf))
+View(mean1.stats)
+
+# 8.1.2. Strategy Per Trade Statistics
+mean1.perstats <- perTradeStats(Portfolio = mean1.portf)
+View(mean1.perstats)
+
+# 8.1.3. Strategy Order Book
+mean1.book <- getOrderBook(portfolio = mean1.portf)
+mean1.book
+
+# 8.1.4. Strategy Position Chart
+chart.theme <- chart_theme()
+chart.theme$col$dn.col <- 'white'
+chart.theme$col$dn.border <- 'lightgray'
+chart.theme$col$up.border <- 'lightgray'
+chart.Posn(Portfolio = mean1.portf,
+           Symbol = "EURUSD",
+           theme = chart.theme)
+add_BBands(n = 20, sd = 2, maType = "SMA")
+
+# 8.1.5. Strategy Equity Curve
+mean1.acct <- getAccount(Account = mean1.strat)
+mean1.equity <- mean1.acct$summary$End.Eq
+plot(mean1.equity, main = "Mean1 Strategy Equity Curve")
+
+# 8.1.6. Strategy Performance Chart
+mean1.ret <- Return.calculate(mean1.equity, method = "log")
+bh.ret <- Return.calculate(EURUSD[, 4], method = "log")
+mean1.comp <- cbind(mean1.ret, bh.ret)
+charts.PerformanceSummary(mean1.comp, main = "Mean1 Strategy Performance")
+table.AnnualizedReturns(mean1.comp)
+
+# 8.2. Strategy Risk Management
+
+# 8.2.1. Strategy Maximum Adverse Excursion Chart
+chart.ME(
+  Portfolio = mean1.portf,
+  Symbol = 'EURUSD',
+  type = 'MAE',
+  scale = 'percent'
 )
 
-# 7.2.3. Strategy Optimization Maximum Drawdown
-plot(
-  x = all.trend2.stats$Portfolio,
-  y = all.trend2.stats$Max.Drawdown,
-  main = "Trend2 Optimization Maximum Drawdown",
-  xlab = "Portfolio",
-  ylab = "Max.Drawdown"
+# 8.2.2. Strategy Maximum Favorable Excursion Chart
+chart.ME(
+  Portfolio = mean1.portf,
+  Symbol = 'EURUSD',
+  type = 'MFE',
+  scale = 'percent'
 )
 
-# 7.2.4. Strategy Optimization Profit to Maximum Drawdown
-plot(
-  x = all.trend2.stats$Portfolio,
-  y = all.trend2.stats$Profit.To.Max.Draw,
-  main = "Trend2 Optimization Profit to Maximum Drawdown",
-  xlab = "Portfolio",
-  ylab = "Profit.To.Max.Draw"
-)
-which.max(all.trend1.stats$Profit.To.Max.Draw)
+# 8.2.3. Strategy Maximum Portfolio Position
+mean1.kelly <- KellyRatio(mean1.ret, method = "half")
+mean1.kelly

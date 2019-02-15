@@ -1,5 +1,5 @@
-# Trading Strategy: Mean-Reversion "Relative-Strength Index"
-# Technical Indicators: RSI
+# Trading Strategy: Mean-Reversion "Bollinger Bands"
+# Technical Indicators: BBands
 # Optimization/Walk Forward Analysis: Yes/No
 
 library(quantmod)
@@ -50,16 +50,15 @@ EURUSD <- fxhistoricaldata("EUR_USD", timeframe, download = TRUE)
 str(EURUSD)
 periodicity(EURUSD)
 
-# RSI Optimization ####
+# BBands Optimization ####
 init.portf <- start(EURUSD) - 10000
 start.date <- start(EURUSD)
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
-period_params <- list(n = c(2:14))
-buythreshold_params <- list(threshold = c(70))
-sellthreshold_params <- list(threshold = c(30))
+period_params <- list(n = c(2:20))
+sd_params <- list(sd = c(1, 1.5, 2))
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0015
@@ -74,50 +73,61 @@ stock(primary_id = "EURUSD",
       multiplier = 1)
 
 # 3. Details ####
-# Mean-Reversion Relative-Strength Strategy
-# Buy Rules = Buy when RSI < +30 Treshold
-# Sell Rules = Sell when RSI > +70 Treshold
+
+# Mean-Reversion Strategy
+# Buy Rules = Buy when Close < Lower Band
+# Sell Rules = Sell when Close > Upper Band
 barChart(EURUSD, theme = "white")
-addRSI(n = 14)
+addBBands(n = 20, sd = 2)
 
 # 4. Initialization ####
+
 # 4.1. Strategy Name
-opt.mean2.strat <- "OptMeanStrat2"
+opt.mean1.strat <- "OptMeanStrat1"
+
 # 4.2. Clear Strategy Data
-rm.strat(opt.mean2.strat)
+rm.strat(opt.mean1.strat)
+
 # 4.3. Strategy Object
-strategy(name = opt.mean2.strat, store = TRUE)
+strategy(name = opt.mean1.strat, store = TRUE)
+
 # 4.4. Completed Strategy Object
-summary(getStrategy(opt.mean2.strat))
+summary(getStrategy(opt.mean1.strat))
 
 # 5. Definitions ####
+
 # 5.1. Add Strategy Indicator
+
+# 5.1.1. Add BBands
 add.indicator(
-  strategy = opt.mean2.strat,
-  name = "RSI",
-  arguments = list(price = quote(getPrice(mktdata))),
-  label = 'RSI'
+  strategy = opt.mean1.strat,
+  name = "BBands",
+  arguments = list(HLC = quote(HLC(mktdata))),
+  label = 'BBands'
 )
+
 # 5.2. Signals ####
+
 # 5.2.1. Add Buying Signal
 add.signal(
-  strategy = opt.mean2.strat,
-  name = "sigThreshold",
-  arguments = list(column = "RSI", relationship = "lt"),
+  strategy = opt.mean1.strat,
+  name = "sigCrossover",
+  arguments = list(columns = c("Close", "dn"), relationship = "lt"),
   label = "BuySignal"
 )
 # 5.2.2. Add Selling Signal
 add.signal(
-  strategy = opt.mean2.strat,
-  name = "sigThreshold",
-  arguments = list(column = "RSI", relationship = "gt"),
+  strategy = opt.mean1.strat,
+  name = "sigCrossover",
+  arguments = list(columns = c("Close", "up"), relationship = "gt"),
   label = "SellSignal"
 )
 
 # 5.3. Rules ####
+
 # 5.3.1. Add Enter Rule
 add.rule(
-  strategy = opt.mean2.strat,
+  strategy = opt.mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
@@ -132,14 +142,14 @@ add.rule(
 )
 # Stop-Loss and Trailing-Stop Rules
 add.rule(
-  strategy = opt.mean2.strat,
+  strategy = opt.mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = initial_stop,
+    threshold = 0.05,
     orderside = 'long'
   ),
   type = 'chain',
@@ -148,14 +158,14 @@ add.rule(
   enabled = enable_stops
 )
 add.rule(
-  strategy = opt.mean2.strat,
+  strategy = opt.mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "BuySignal",
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = trailing_stop,
+    threshold = 0.07,
     orderside = 'long'
   ),
   type = 'chain',
@@ -166,7 +176,7 @@ add.rule(
 
 # 5.3.2. Add Exit Rule
 add.rule(
-  strategy = opt.mean2.strat,
+  strategy = opt.mean1.strat,
   name = 'ruleSignal',
   arguments = list(
     sigcol = "SellSignal",
@@ -182,66 +192,62 @@ add.rule(
 )
 
 # 5.4. Parameters ####
+
 # Number of Periods
 add.distribution(
-  strategy = opt.mean2.strat,
-  paramset.label = 'OptMeanPar2',
+  strategy = opt.mean1.strat,
+  paramset.label = 'OptMeanPar1',
   component.type = 'indicator',
-  component.label = 'RSI',
+  component.label = 'BBands',
   variable = period_params,
   label = 'n'
 )
-# Buy Signal Threshold
+# Number of Standard Deviations
 add.distribution(
-  strategy = opt.mean2.strat,
-  paramset.label = 'OptMeanPar2',
-  component.type = 'signal',
-  component.label = 'BuySignal',
-  variable = buythreshold_params,
-  label = 'BuyThreshold'
+  strategy = opt.mean1.strat,
+  paramset.label = 'OptMeanPar1',
+  component.type = 'indicator',
+  component.label = 'BBands',
+  variable = sd_params,
+  label = 'sd'
 )
-# Sell Signal Threshold
-add.distribution(
-  strategy = opt.mean2.strat,
-  paramset.label = 'OptMeanPar2',
-  component.type = 'signal',
-  component.label = 'SellSignal',
-  variable = sellthreshold_params,
-  label = 'SellThreshold'
-)
+
 # 5.5. Completed Strategy Object
-summary(getStrategy(opt.mean2.strat))
+summary(getStrategy(opt.mean1.strat))
 
 # 6. Portfolio Initialization ####
+
 # 6.1. Portfolio Names
-opt.mean2.portf <- "OptMeanPort2"
+opt.mean1.portf <- "OptMeanPort1"
+
 # 6.2. Clear Portfolio Data
-rm.strat(opt.mean2.portf)
+rm.strat(opt.mean1.portf)
+
 # 6.3. Initialize Portfolio Object
-initPortf(name = opt.mean2.portf,
+initPortf(name = opt.mean1.portf,
           symbols = "EURUSD",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
 initAcct(
-  name = opt.mean2.strat,
-  portfolios = opt.mean2.portf,
+  name = opt.mean1.strat,
+  portfolios = opt.mean1.portf,
   initDate = init.portf,
   initEq = init.equity
 )
 
 # 6.3. Initialize Orders Object
-initOrders(portfolio = opt.mean2.portf, initDate = init.portf)
+initOrders(portfolio = opt.mean1.portf, initDate = init.portf)
 
 # 7. Optimization ####
 
 # 7.1. Strategy Optimization Results
-opt.mean2.results <-
+opt.mean1.results <-
   apply.paramset(
-    strategy.st = opt.mean2.strat,
-    paramset.label = 'OptMeanPar2',
-    portfolio.st = opt.mean2.portf,
-    account.st = opt.mean2.strat,
+    strategy.st = opt.mean1.strat,
+    paramset.label = 'OptMeanPar1',
+    portfolio.st = opt.mean1.portf,
+    account.st = opt.mean1.strat,
     nsamples = 0,
     verbose = TRUE
   )
@@ -249,32 +255,32 @@ opt.mean2.results <-
 # 7.2. Strategy Optimization Trading Statistics
 
 # 7.2.1. Strategy Optimization General Trade Statistics
-all.mean2.stats <- opt.mean2.results$tradeStats
-View(all.mean2.stats)
+all.mean1.stats <- opt.mean1.results$tradeStats
+View(all.mean1.stats)
+
 # 7.2.2. Strategy Optimization Net Trading PL
 plot(
-  x = all.mean2.stats$Portfolio,
-  y = all.mean2.stats$Net.Trading.PL,
-  main = "Mean2 Optimization Net Trading PL",
+  x = all.mean1.stats$Portfolio,
+  y = all.mean1.stats$Net.Trading.PL,
+  main = "Mean1 Optimization Net Trading PL",
   xlab = "Portfolio",
   ylab = "Net.Trading.PL"
 )
 
 # 7.2.3. Strategy Optimization Maximum Drawdown
 plot(
-  x = all.mean2.stats$Portfolio,
-  y = all.mean2.stats$Max.Drawdown,
-  main = "Mean2 Optimization Maximum Drawdown",
+  x = all.mean1.stats$Portfolio,
+  y = all.mean1.stats$Max.Drawdown,
+  main = "Mean1 Optimization Maximum Drawdown",
   xlab = "Portfolio",
   ylab = "Max.Drawdown"
 )
 
 # 7.2.4. Strategy Optimization Profit to Maximum Drawdown
 plot(
-  x = all.mean2.stats$Portfolio,
-  y = all.mean2.stats$Profit.To.Max.Draw,
-  main = "Mean2 Optimization Profit to Maximum Drawdown",
+  x = all.mean1.stats$Portfolio,
+  y = all.mean1.stats$Profit.To.Max.Draw,
+  main = "Mean1 Optimization Profit to Maximum Drawdown",
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-which.max(all.mean2.stats$Profit.To.Max.Draw)
