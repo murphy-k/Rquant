@@ -53,7 +53,6 @@ periodicity(EURUSD)
 # SMA Optimization ####
 init.portf <- start(EURUSD) - 100000
 start.date <- start(EURUSD)
-end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE

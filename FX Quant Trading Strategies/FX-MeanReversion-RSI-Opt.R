@@ -51,9 +51,8 @@ str(EURUSD)
 periodicity(EURUSD)
 
 # RSI Optimization ####
-init.portf <- start(EURUSD) - 10000
+init.portf <- start(EURUSD) - 86400
 start.date <- start(EURUSD)
-end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
@@ -277,4 +276,3 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-which.max(all.mean2.stats$Profit.To.Max.Draw)
