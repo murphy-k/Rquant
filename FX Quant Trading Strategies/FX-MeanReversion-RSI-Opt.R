@@ -57,8 +57,8 @@ Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- FALSE
 period_params <- list(n = c(2:14))
-buythreshold_params <- list(threshold = c(70))
-sellthreshold_params <- list(threshold = c(30))
+buythreshold_params <- list(threshold = c(30))
+sellthreshold_params <- list(threshold = c(70))
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0015

@@ -55,8 +55,8 @@ init.portf <- start(EURUSD) - 10000
 start.date <- start(EURUSD)
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- TRUE
-period <- 10
+enable_stops <- FALSE
+period <- 11
 buythreshold <- 30
 sellthreshold <- 70
 position_size <- 10000
