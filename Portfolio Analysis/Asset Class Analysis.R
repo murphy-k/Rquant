@@ -4,16 +4,17 @@
 library("tseries")
 library("quantmod")
 library("Quandl")
-Quandl.api_key("shVi-_QjPbmUAfvVBMzw")
+Quandl.api_key("5TJZgFo3SkynavER6dMR")
 library("PortfolioAnalytics")
 library("PerformanceAnalytics")
 library("DEoptim")
+
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Initial Settings
-date_start <- "2016-12-31"
-date_end <- Sys.Date()
+startDate <- "2008-12-31"
+endDate <- Sys.Date()
 
 # 2. Asset Classes ####
 # 2.1. Cash and Cash Equivalents ####
@@ -22,8 +23,8 @@ treasury = Quandl(
   "USTREASURY/YIELD",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 # Cash and Cash Equivalents as 1 month Treasury Bills annual yield
 TBill_1Month = treasury[, 1]
@@ -31,10 +32,10 @@ TBill_1Month_ret = (TBill_1Month / 100) / 12
 colnames(TBill_1Month_ret) = "TBill_1Month_ret"
 TBill_1Month_annret = TBill_1Month / 100
 colnames(TBill_1Month_annret) = "TBill_1Month_annret"
-plot.zoo(TBill_1Month_ret,
-         main = "1 Month U.S. Treasury Bills Returns",
-         xlab = "Dates",
-         ylab = "Monthly Returns")
+plot(TBill_1Month_ret,
+     main = "1 Month U.S. Treasury Bills Returns",
+     xlab = "Dates",
+     ylab = "Monthly Returns")
 table.AnnualizedReturns(TBill_1Month_ret)
 charts.PerformanceSummary(TBill_1Month_ret)
 
@@ -43,8 +44,8 @@ charts.PerformanceSummary(TBill_1Month_ret)
 # 2.2.1. 	iShares Core U.S. Aggregate Bond ETF 'AGG'
 getSymbols("AGG",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 AggBonds = to.monthly(AGG)
 AggBonds = AggBonds[, 6]
 AggBonds_ret = AggBonds / Lag(AggBonds) - 1
@@ -53,11 +54,11 @@ colnames(AggBonds_ret) <- c("AggBonds_ret")
 AggBonds_annret = AggBonds / Lag(AggBonds, 12) - 1
 AggBonds_annret[is.na(AggBonds_annret)] <- 0
 colnames(AggBonds_annret) <- c("AggBonds_annret")
-plot.zoo(AggBonds,
+plot(AggBonds,
          main = "U.S. Total Bond Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(
+plot(
   AggBonds_ret,
   main = "U.S. Total Bond Market Returns",
   xlab = "Dates",
@@ -70,8 +71,8 @@ charts.PerformanceSummary(AggBonds_ret)
 # 2.2.2. U.S. Short Term Bond Market iShares 1-3 Year Treasury Bond ETF
 getSymbols("SHY",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mshort = to.monthly(SHY)
 mshort = mshort[, 6]
 mshortret = mshort / Lag(mshort) - 1
@@ -80,24 +81,26 @@ colnames(mshortret) <- c("mshortret")
 ashortret = mshort / Lag(mshort, 12) - 1
 ashortret[is.na(ashortret)] <- 0
 colnames(ashortret) <- c("ashortret")
-plot.zoo(mshort,
+plot(mshort,
          main = "U.S. Short Term Bond Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mshortret,
-         main = "U.S. Short Term Market Returns",
-         xlab = "Dates",
-         ylab = "Monthly Returns",
-         type = "h")
+plot(
+  mshortret,
+  main = "U.S. Short Term Market Returns",
+  xlab = "Dates",
+  ylab = "Monthly Returns",
+  type = "h"
+)
 table.AnnualizedReturns(mshortret)
 charts.PerformanceSummary(mshortret)
 
-# 2.2.3. U.S. Long Term Bond Market (Barclays U.S. Long Term Treasuries Index, 
+# 2.2.3. U.S. Long Term Bond Market (Barclays U.S. Long Term Treasuries Index,
 # Vanguard VUSTX Mutual Fund, U.S. Treasury Bonds with more than ten years maturity)
 getSymbols("VUSTX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mlong = to.monthly(VUSTX)
 mlong = mlong[, 6]
 mlongret = mlong / Lag(mlong) - 1
@@ -106,11 +109,11 @@ colnames(mlongret) <- c("mlongret")
 alongret = mlong / Lag(mlong, 12) - 1
 alongret[is.na(alongret)] <- 0
 colnames(alongret) <- c("alongret")
-plot.zoo(mlong,
+plot(mlong,
          main = "U.S. Long Term Bond Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mlongret,
+plot(mlongret,
          main = "U.S. Long Term Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -120,8 +123,8 @@ charts.PerformanceSummary(mlongret)
 # 2.2.4. International Total Bond Market (Barclays Global Aggregate Bond Market, Invesco AUBAX Mutual Fund, International Investment Grade Bond Market)
 getSymbols("AUBAX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mibonds = to.monthly(AUBAX)
 mibonds = mibonds[, 6]
 mibondsret = mibonds / Lag(mibonds) - 1
@@ -130,11 +133,11 @@ colnames(mibondsret) <- c("mibondsret")
 aibondsret = mibonds / Lag(mibonds, 12) - 1
 aibondsret[is.na(aibondsret)] <- 0
 colnames(aibondsret) <- c("aibondsret")
-plot.zoo(mibonds,
+plot(mibonds,
          main = "International Total Bond Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mibondsret,
+plot(mibondsret,
          main = "International Total Bond Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -157,8 +160,8 @@ charts.PerformanceSummary(bondscomp, main = "U.S & International Fixed Income Re
 # 2.3.1. U.S. Total Stock Market (Russell 3000 Index, Vanguard VTSMX Mutual Fund)
 getSymbols("VTSMX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mstocks = to.monthly(VTSMX)
 mstocks = mstocks[, 6]
 mstocksret = mstocks / Lag(mstocks) - 1
@@ -167,11 +170,11 @@ colnames(mstocksret) <- c("mstocksret")
 astocksret = mstocks / Lag(mstocks, 12) - 1
 astocksret[is.na(astocksret)] <- 0
 colnames(astocksret) <- c("astocksret")
-plot.zoo(mstocks,
+plot(mstocks,
          main = "U.S. Total Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mstocksret,
+plot(mstocksret,
          main = "U.S. Total Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -181,8 +184,8 @@ charts.PerformanceSummary(mstocksret)
 # 2.3.2. U.S. Large Cap Stock Market (S&P 500 Index, Vanguard VFINX Mutual Fund)
 getSymbols("VFINX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mlarge = to.monthly(VFINX)
 mlarge = mlarge[, 6]
 mlargeret = mlarge / Lag(mlarge) - 1
@@ -191,11 +194,11 @@ colnames(mlargeret) <- c("mlargeret")
 alargeret = mlarge / Lag(mlarge, 12) - 1
 alargeret[is.na(alargeret)] <- 0
 colnames(alargeret) <- c("alargeret")
-plot.zoo(mlarge,
+plot(mlarge,
          main = "U.S. Large Cap Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mlargeret,
+plot(mlargeret,
          main = "U.S. Large Cap Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -205,8 +208,8 @@ charts.PerformanceSummary(mlargeret)
 # 2.3.3. U.S. Small Cap Stock Market (Russell 2000 Index, Vanguard NAESX Mutual Fund)
 getSymbols("NAESX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 msmall = to.monthly(NAESX)
 msmall = msmall[, 6]
 msmallret = msmall / Lag(msmall) - 1
@@ -215,11 +218,11 @@ colnames(msmallret) <- c("msmallret")
 asmallret = msmall / Lag(msmall, 12) - 1
 asmallret[is.na(asmallret)] <- 0
 colnames(asmallret) <- c("asmallret")
-plot.zoo(msmall,
+plot(msmall,
          main = "U.S. Small Cap Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(msmallret,
+plot(msmallret,
          main = "U.S. Small Cap Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -229,8 +232,8 @@ charts.PerformanceSummary(msmallret)
 # 2.3.4. U.S. Small Cap Growth Stock Market (Russell 2000 Growth Index, Vanguard VISGX Mutual Fund)
 getSymbols("VISGX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mgrowth = to.monthly(VISGX)
 mgrowth = mgrowth[, 6]
 mgrowthret = mgrowth / Lag(mgrowth) - 1
@@ -239,11 +242,11 @@ colnames(mgrowthret) <- c("mgrowthret")
 agrowthret = mgrowth / Lag(mgrowth, 12) - 1
 agrowthret[is.na(agrowthret)] <- 0
 colnames(agrowthret) <- c("agrowthret")
-plot.zoo(mgrowth,
+plot(mgrowth,
          main = "U.S. Small Cap Growth Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mgrowthret,
+plot(mgrowthret,
          main = "U.S. Small Cap Growth Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -253,8 +256,8 @@ charts.PerformanceSummary(mgrowthret)
 # 2.3.5. U.S. Small Cap Value Stock Market (Russell 2000 Growth Index, Vanguard VISVX Mutual Fund)
 getSymbols("VISVX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mvalue = to.monthly(VISVX)
 mvalue = mvalue[, 6]
 mvalueret = mvalue / Lag(mvalue) - 1
@@ -263,11 +266,11 @@ colnames(mvalueret) <- c("mvalueret")
 avalueret = mvalue / Lag(mvalue, 12) - 1
 avalueret[is.na(avalueret)] <- 0
 colnames(avalueret) <- c("avalueret")
-plot.zoo(mvalue,
+plot(mvalue,
          main = "U.S. Small Cap Value Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mvalueret,
+plot(mvalueret,
          main = "U.S. Small Cap Value Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -277,8 +280,8 @@ charts.PerformanceSummary(mvalueret)
 # 2.3.6. International Total Stock Market (MSCI International Index, Vanguard VGTSX Mutual Fund)
 getSymbols("VGTSX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mistocks = to.monthly(VGTSX)
 mistocks = mistocks[, 6]
 mistocksret = mistocks / Lag(mistocks) - 1
@@ -287,11 +290,11 @@ colnames(mistocksret) <- c("mistocksret")
 aistocksret = mistocks / Lag(mistocks, 12) - 1
 aistocksret[is.na(aistocksret)] <- 0
 colnames(aistocksret) <- c("aistocksret")
-plot.zoo(mistocks,
+plot(mistocks,
          main = "International Total Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mistocksret,
+plot(mistocksret,
          main = "International Total Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -301,8 +304,8 @@ charts.PerformanceSummary(mistocksret)
 # 2.3.7. International Developed Stock Market (MSCI International Developed Index, Vanguard VTMGX Mutual Fund)
 getSymbols("VTMGX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mdeveloped = to.monthly(VTMGX)
 mdeveloped = mdeveloped[, 6]
 mdevelopedret = mdeveloped / Lag(mdeveloped) - 1
@@ -311,11 +314,11 @@ colnames(mdevelopedret) <- c("mdevelopedret")
 adevelopedret = mdeveloped / Lag(mdeveloped, 12) - 1
 adevelopedret[is.na(adevelopedret)] <- 0
 colnames(adevelopedret) <- c("adevelopedret")
-plot.zoo(mdeveloped,
+plot(mdeveloped,
          main = "International Developed Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mdevelopedret,
+plot(mdevelopedret,
          main = "International Developed Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -325,8 +328,8 @@ charts.PerformanceSummary(mdevelopedret)
 # 2.3.8. International Emerging Stock Market (MSCI International Emerging Index, Vanguard VEIEX Mutual Fund)
 getSymbols("VEIEX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 memerging = to.monthly(VEIEX)
 memerging = memerging[, 6]
 memergingret = memerging / Lag(memerging) - 1
@@ -335,11 +338,11 @@ colnames(memergingret) <- c("memergingret")
 aemergingret = memerging / Lag(memerging, 12) - 1
 aemergingret[is.na(aemergingret)] <- 0
 colnames(aemergingret) <- c("aemergingret")
-plot.zoo(memerging,
+plot(memerging,
          main = "International Emerging Stock Market Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(memergingret,
+plot(memergingret,
          main = "International Emerging Stock Market Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -373,8 +376,8 @@ moil = Quandl(
   "EIA/PET_RWTC_D",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 moilret = moil / Lag(moil) - 1
 moilret[is.na(moilret)] <- 0
@@ -382,11 +385,11 @@ colnames(moilret) <- c("moilret")
 aoilret = moil / Lag(moil, 12) - 1
 aoilret[is.na(aoilret)] <- 0
 colnames(aoilret) <- c("aoilret")
-plot.zoo(moil,
+plot(moil,
          main = "Oil WTI Spot Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(moilret,
+plot(moilret,
          main = "Oil WTI Spot Price Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -398,8 +401,8 @@ mgold = Quandl(
   "LBMA/GOLD",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mgoldret = mgold[, 2] / Lag(mgold[, 2]) - 1
 mgoldret[is.na(mgoldret)] <- 0
@@ -407,11 +410,11 @@ colnames(mgoldret) <- c("mgoldret")
 agoldret = mgold[, 2] / Lag(mgold[, 2], 12) - 1
 agoldret[is.na(agoldret)] <- 0
 colnames(agoldret) <- c("agoldret")
-plot.zoo(mgold[, 2],
+plot(mgold[, 2],
          main = "Gold Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mgoldret,
+plot(mgoldret,
          main = "Gold Price Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -423,8 +426,8 @@ charts.PerformanceSummary(mgoldret)
 # U.S. Real Estate Investment Trust (U.S. Real Estate Investment Trust (MSCI U.S. REIT Index), Vanguard: VGSIX Mutual Fund)
 getSymbols("VGSIX",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 mreit = to.monthly(VGSIX)
 mreit = mreit[, 6]
 mreitret = mreit / Lag(mreit) - 1
@@ -433,11 +436,11 @@ colnames(mreitret) <- c("mreitret")
 areitret = mreit / Lag(mreit, 12) - 1
 areitret[is.na(areitret)] <- 0
 colnames(areitret) <- c("areitret")
-plot.zoo(mreit,
+plot(mreit,
          main = "U.S. Real Estate Investment Trust Prices",
          xlab = "Dates",
          ylab = "Monthly Prices")
-plot.zoo(mreitret,
+plot(mreitret,
          main = "U.S. Real Estate Investment Trust Returns",
          xlab = "Dates",
          ylab = "Monthly Returns")
@@ -451,8 +454,8 @@ mbroad = Quandl(
   "FRED/TWEXB",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mbroadret = mbroad / Lag(mbroad) - 1
 mbroadret[is.na(mbroadret)] <- 0
@@ -460,11 +463,11 @@ colnames(mbroadret) <- c("mbroadret")
 abroadret = mbroad / Lag(mbroad, 12) - 1
 abroadret[is.na(abroadret)] <- 0
 colnames(abroadret) <- c("abroadret")
-plot.zoo(mbroad,
+plot(mbroad,
          main = "USD Broad Trade Weighted Index Prices",
          xlab = "Dates",
          ylab = "USD Monthly Prices")
-plot.zoo(mbroadret,
+plot(mbroadret,
          main = "USD Broad Trade Weighted Index Returns",
          xlab = "Dates",
          ylab = "USD Monthly Returns")
@@ -476,8 +479,8 @@ mmajor = Quandl(
   "FRED/DTWEXM",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mmajorret = mmajor / Lag(mmajor) - 1
 mmajorret[is.na(mmajorret)] <- 0
@@ -485,11 +488,11 @@ colnames(mmajorret) <- c("mmajorret")
 amajorret = mmajor / Lag(mmajor, 12) - 1
 amajorret[is.na(amajorret)] <- 0
 colnames(amajorret) <- c("amajorret")
-plot.zoo(mmajor,
+plot(mmajor,
          main = "USD Major Currencies Trade Weighted Index Prices",
          xlab = "Dates",
          ylab = "USD Monthly Prices")
-plot.zoo(mmajorret,
+plot(mmajorret,
          main = "USD Major Currencies Trade Weighted Index Returns",
          xlab = "Dates",
          ylab = "USD Monthly Returns")
@@ -498,7 +501,12 @@ charts.PerformanceSummary(mmajorret)
 
 # 2.7. Main Asset Classes Comparison
 assetscomp <-
-  cbind(AggBonds_ret, mstocksret, moilret, mgoldret, mreitret, mbroadret)
+  cbind(AggBonds_ret,
+        mstocksret,
+        moilret,
+        mgoldret,
+        mreitret,
+        mbroadret)
 table.AnnualizedReturns(assetscomp)
 charts.PerformanceSummary(assetscomp)
 
@@ -545,11 +553,11 @@ mvixq = Quandl(
   "CBOE/VIX",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mvixa = mvixq[, 4] / 100
-plot.zoo(mvixa,
+plot(mvixa,
          main = "CBOE VIX Volatility Index",
          xlab = "Dates",
          ylab = "Annualized Volatility")
@@ -565,7 +573,7 @@ avolcomp <- cbind(mlargestdeva, alargestdev, mvixamean)
 avolcomp
 
 # 3.2.6. Normalized Rate of Return
-plot.zoo(alargeret,
+plot(alargeret,
          main = "U.S. Large Cap Stocks Annual Returns",
          xlab = "Dates",
          ylab = "Annual Returns")
@@ -573,7 +581,7 @@ nlargeret <- as.numeric(alargeret)
 nlargeret <-
   (nlargeret[13:140] - alargemean) / as.numeric(alargestdev)
 nlargeret <- ts(nlargeret, frequency = 12, start = c(2007, 4))
-plot.zoo(nlargeret,
+plot(nlargeret,
          main = "U.S. Large Cap Stocks Normalized Annual Returns",
          xlab = "Dates",
          ylab = "Normalized Annual Returns")
@@ -620,7 +628,8 @@ alargevar
 # 3.4. Returns and Risks Relationships
 
 # 3.4.1. Correlation
-aassetsdata <- data.frame(TBill_1Month_annret, AggBonds_annret, astocksret)
+aassetsdata <-
+  data.frame(TBill_1Month_annret, AggBonds_annret, astocksret)
 aassetscor <- cor(aassetsdata)
 aassetscor
 alargedata <- data.frame(alargeret, astocksret)
@@ -671,8 +680,8 @@ alargeresvar
 # Buy Write/Covered Call (CBOE BXM Index, buy S&P 500, sell 1-month ATM S&P 500 calls)
 getSymbols("^BXM",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 dbxm = BXM[, 6]
 colnames(dbxm) <- "dbxm"
 mbxmret = monthlyReturn(dbxm)
@@ -693,8 +702,8 @@ mvxth = Quandl(
   "CBOE/VXTH",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mvxthret = mvxth / Lag(mvxth) - 1
 mvxthret[is.na(mvxthret)] <- 0
@@ -713,8 +722,8 @@ mhedgeretq = Quandl(
   "EUREKA/473",
   type = "xts",
   collapse = "monthly",
-  start_date = date_start,
-  end_date = date_end
+  start_date = startDate,
+  end_date = endDate
 )
 mhedgeret = mhedgeretq / 100
 colnames(mhedgeret) = "mhedgeret"
@@ -738,8 +747,8 @@ amaxlargelev
 # 3.8.2. U.S. Large Cap Stock Market 2x Daily Leverage (ProShares SSO ETF)
 getSymbols("SSO",
            src = "yahoo",
-           from = date_start,
-           to = date_end)
+           from = startDate,
+           to = endDate)
 m2xlarge = to.monthly(SSO)
 m2xlarge = m2xlarge[, 6]
 m2xlargeret = m2xlarge / Lag(m2xlarge) - 1

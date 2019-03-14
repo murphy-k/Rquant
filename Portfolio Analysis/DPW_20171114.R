@@ -1,8 +1,14 @@
+library(quantmod)
+library(PerformanceAnalytics)
+
+endDate <- Sys.Date()
+startDate <- endDate - 365 * 10
+
 # S&P 500 Index
 getSymbols("SPY",
            src = "yahoo",
-           from = "2007-11-13",
-           to = "2017-11-13")
+           from = startDate,
+           to = endDate)
 mSPY = to.monthly(SPY)
 mSPY = mSPY[, 6]
 mSPYret = mSPY / Lag(mSPY) - 1
@@ -25,8 +31,8 @@ charts.PerformanceSummary(mSPYret)
 # Vanguard Growth Index
 getSymbols("VIGRX",
            src = "yahoo",
-           from = "2007-11-13",
-           to = "2017-11-13")
+           from = startDate,
+           to = endDate)
 mVIGRX = to.monthly(VIGRX)
 mVIGRX = mVIGRX[, 6]
 mVIGRXret = mVIGRX / Lag(mVIGRX) - 1
@@ -49,8 +55,8 @@ charts.PerformanceSummary(mVIGRXret)
 
 getSymbols("VIVAX",
            src = "yahoo",
-           from = "2007-11-13",
-           to = "2017-11-13")
+           from = startDate,
+           to = endDate)
 mVIVAX = to.monthly(VIVAX)
 mVIVAX = mVIVAX[, 6]
 mVIVAXret = mVIVAX / Lag(mVIVAX) - 1
