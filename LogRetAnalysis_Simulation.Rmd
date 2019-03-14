@@ -30,13 +30,13 @@ library(corrplot)   # visualizing correlation plots
 
 ```{r Ticker Download, echo=TRUE, message=FALSE, warning=FALSE}
 getSymbols(
-  "LMB",
+  "SPY",
   src = "yahoo",
   auto.assign = TRUE,
   from = "2017-01-01",
   to = Sys.Date()
   )
-  LMB %>%
+  SPY %>%
   chartSeries(
   TA = "addSMA(n = 100, col = 'black');
   addSMA(n=200, col = 'purple');
@@ -48,9 +48,9 @@ getSymbols(
 ```
 
 
-Calculate the log returns of "LMB". Latest observations:
+Calculate the log returns of "SPY". Latest observations:
 ```{r Calculate Log Returns, echo=FALSE}
-LMB %>%
+SPY %>%
   Ad() %>%
   dailyReturn(type = "log") %>%
   round(digits = 3) %>%
@@ -58,7 +58,7 @@ LMB %>%
 ```
 First Observations:
 ```{r echo=FALSE}
-LMB %>%
+SPY %>%
   Ad() %>%
   dailyReturn(type = "log") %>%
   round(digits = 3) %>%
@@ -66,7 +66,7 @@ LMB %>%
 
 ```
 ```{r Histogram, echo=FALSE}
-log_returns <- LMB %>%
+log_returns <- SPY %>%
   Ad() %>%
   dailyReturn(type = "log")
 names(log_returns) <- "Log.Returns"
@@ -78,7 +78,7 @@ names(log_returns) <- "Log.Returns"
   ggplot(aes(x = Log.Returns)) +
   geom_histogram(bins = 100) +
   geom_density() +
-  geom_rug(alpha = 0.5) + ggtitle("LMB Log-Returns %")
+  geom_rug(alpha = 0.5) + ggtitle("SPY Log-Returns %")
 ```
 
 Quantiles:
@@ -125,8 +125,8 @@ N <- 20
 mu <- mean_log_returns
 sigma <- sd_log_retuns
 day <- 1:N
-price_init <- LMB$LMB.Adjusted[[nrow(LMB$LMB.Adjusted)]]
-LMB$LMB.Adjusted[[nrow(LMB$LMB.Adjusted)]]
+price_init <- SPY$SPY.Adjusted[[nrow(SPY$SPY.Adjusted)]]
+SPY$SPY.Adjusted[[nrow(SPY$SPY.Adjusted)]]
 # Simulate prices
 price <- c(price_init, rep(NA, N - 1))
 for (i in 2:N) {
@@ -141,7 +141,7 @@ price_sim <- cbind(day, price) %>%
 price_sim %>%
   ggplot(aes(day, price)) +
   geom_line() +
-  ggtitle(str_c("LMB: Simulated Prices for ", N, " Trading Days"))
+  ggtitle(str_c("SPY: Simulated Prices for ", N, " Trading Days"))
 ```
 
 
@@ -176,7 +176,7 @@ price_sim %>%
   ggplot(aes(x = Day, y = Stock.Price, Group = Simulation)) +
   geom_line(alpha = 0.10, col = "black") +
   ggtitle(str_c(
-    "LMB: ",
+    "SPY: ",
     M,
     " Monte Carlo Simulations for Prices Over ",
     N,
@@ -187,7 +187,7 @@ price_sim %>%
 
 Boundaries:
 ```{r End Simulation Quartiles, echo=FALSE, message=FALSE, warning=FALSE}
-print(c("Starting Price: ", round(LMB$LMB.Adjusted[[nrow(LMB)]], digits = 3)))
+print(c("Starting Price: ", round(SPY$SPY.Adjusted[[nrow(SPY)]], digits = 3)))
 end_stock_prices <- price_sim %>%
 filter(Day == max(Day))
 dist_end_stock_prices <-
@@ -202,9 +202,9 @@ print(round(dist_end_stock_prices[[4]],digits = 2))
 
 CAGR Comparison:
 ```{r CAGR Calculations, echo=FALSE}
-N_hist <- nrow(LMB) / N
-p_start_hist <- LMB$LMB.Adjusted[[1]]
-p_end_hist <- LMB$LMB.Adjusted[[nrow(LMB)]]
+N_hist <- nrow(SPY) / N
+p_start_hist <- SPY$SPY.Adjusted[[1]]
+p_end_hist <- SPY$SPY.Adjusted[[nrow(SPY)]]
 N_sim <- N / N
 p_start_sim <- p_end_hist
 p_end_sim <- dist_end_stock_prices[[4]]
@@ -214,6 +214,6 @@ p_end_sim <- dist_end_stock_prices[[4]]
 ```{R CAGR Comparison, echo=FALSE}
 CAGR_hist <- (p_end_hist / p_start_hist) ^ (1 / N_hist) - 1
 CAGR_sim <- (p_end_sim / p_start_sim) ^ (1 / N_sim) - 1
-print(c("LMB CAGR %: ", round(CAGR_hist, digits = 4) * 100))
+print(c("SPY CAGR %: ", round(CAGR_hist, digits = 4) * 100))
 print(c("Simulation CAGR %: ", round(CAGR_sim, digits = 4) * 100))
 ```

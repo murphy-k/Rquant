@@ -13,7 +13,7 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Initial Settings
-startDate <- "2008-12-31"
+startDate <- Sys.Date() - (365*10)
 endDate <- Sys.Date()
 
 # 2. Asset Classes ####
@@ -648,7 +648,7 @@ aassetsr2
 alarger2 <- alargecor ^ 2
 alarger2
 
-# 3.5. Assets and Market Relationship (Systematic Risk)
+# 3.5. Assets and Market Relationship (Systematic Risk) ####
 
 # 3.5.1. Capital Asset Pricing Model CAPM
 
@@ -765,7 +765,7 @@ charts.PerformanceSummary(levcomp)
 
 
 
-# 4. Portfolio Theory
+# 4. Portfolio Theory ####
 
 # 4.1. Portfolio Performance
 
