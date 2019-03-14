@@ -2,8 +2,8 @@ library(PerformanceAnalytics)
 library(quantmod)
 rm(list=ls())
 
-getSymbols("DAN", src="yahoo", auto.assign = TRUE, warnings=FALSE)
-chart.RollingCorrelation(Ra = SPY$SPY.Close, Rb = DAN$DAN.Close,width = 10)
+getSymbols(c("DAN","SPY"), src="yahoo", auto.assign = TRUE, warnings=FALSE)
+chart.RollingCorrelation(Ra = SPY$SPY.Close, Rb = DAN$DAN.Close,width = 20)
 
 # First we get the data
 data(managers)
