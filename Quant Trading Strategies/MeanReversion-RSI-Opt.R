@@ -16,14 +16,14 @@ Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- FALSE
 period_params <- list(n = c(2:14))
-buythreshold_params <- list(threshold = c(20,30))
-sellthreshold_params <- list(threshold = c(70,80))
+buythreshold_params <- list(threshold = c(30))
+sellthreshold_params <- list(threshold = c(70))
 position_size <- 100
 txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "SPY",
+  Symbols = "XOP",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +35,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "SPY",
+stock(primary_id = "XOP",
       currency = "USD",
       multiplier = 1)
 
@@ -43,7 +43,7 @@ stock(primary_id = "SPY",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(SPY)
+barChart(XOP)
 addRSI(n = 9)
 
 # 4. Initialization ####
@@ -185,7 +185,7 @@ opt.mean2.portf <- "OptMeanPort2"
 rm.strat(opt.mean2.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean2.portf,
-          symbols = "SPY",
+          symbols = "XOP",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -243,4 +243,3 @@ plot(
   xlab = "Portfolio",
   ylab = "Profit.To.Max.Draw"
 )
-which.max(all.mean2.stats$Profit.To.Max.Draw)

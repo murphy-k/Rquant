@@ -1,18 +1,23 @@
 # Pricing Options
 library(fOptions)
-rm(list=ls())
+
 
 dte <- function(n) {
-  expTime <<- n / 365
+  expTime <<- as.numeric(n / 365)
   print(expTime)
 }
-dte(8)
+
+n <- as.Date("2019-05-17") - Sys.Date()
+print(n)
+
+dte(n)
+
 type <- "c"
-stockPrice <- 27
-strikePrice <- 26
-rateInterest <- 0.01
+stockPrice <- 32.39
+strikePrice <- 35
+rateInterest <- 0.00
 borrowRate <- 0.00
-impliedVol <- 0.46
+impliedVol <- 0.2986
 
 # Vanilla Pricing ####
 GBSOption(

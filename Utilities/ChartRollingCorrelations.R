@@ -1,13 +1,34 @@
 library(PerformanceAnalytics)
 library(quantmod)
-rm(list=ls())
 
-getSymbols(c("DAN","SPY"), src="yahoo", auto.assign = TRUE, warnings=FALSE)
-chart.RollingCorrelation(Ra = SPY$SPY.Close, Rb = DAN$DAN.Close,width = 20)
+getSymbols(
+  c("XOP", "SPY", "USO", "XLE"),
+  src = "yahoo",
+  auto.assign = TRUE,
+  warnings = FALSE
+)
 
-# First we get the data
-data(managers)
-chart.RollingCorrelation(managers[, 1:6, drop=FALSE], 
-                         managers[, 8, drop=FALSE], 
-                         colorset=rich8equal, legend.loc="bottomright", 
-                         width=24, main = "Rolling 12-Month Correlation")
+startDate <- "2018-06-01"
+endDate <- Sys.Date()
+XOP_ts <- window(x = XOP$XOP.Close,
+                 start = startDate,
+                 end = endDate)
+SPY_ts <- window(x = SPY$SPY.Close,
+                 start = startDate,
+                 end = endDate)
+USO_ts <- window(x = USO$USO.Close,
+                 start = startDate,
+                 end = endDate)
+XLE_ts <- window(x = XLE$XLE.Close,
+                 start = startDate,
+                 end = endDate)
+df <- cbind(XOP_ts, SPY_ts, USO_ts, XLE_ts)
+chart.RollingCorrelation(
+  Ra = df[, c(2:4)],
+  Rb = df[, 1],
+  width = 20,
+  #colorset = tol6qualitative,
+  legend.loc = "bottomright",
+  main = "Rolling Correlations",
+  type = "l"
+)

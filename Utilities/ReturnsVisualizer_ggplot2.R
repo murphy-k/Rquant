@@ -7,8 +7,8 @@ library(ggplot2)
 library(magrittr)
 
 # Data Download
-ticker <- "SPY"
-start_date <- "2018-01-01"
+ticker <- "TSLA"
+start_date <- "2017-01-01"
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -72,6 +72,6 @@ ggplot(data = x_ret, aes(x_ret[, 1])) +
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
-z_score <- zscore(x_ret, p = last(x_ret))
+z_score <- zscore(z = x_ret, p = last(x_ret))
 z_score
-pnorm(z_score, lower.tail = FALSE)
+pnorm(z_score, lower.tail = TRUE)
