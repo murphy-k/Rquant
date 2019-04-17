@@ -6,18 +6,18 @@ rm(list=ls())
 
 tickers <-
   c(
-    "AAPL",
-    "QQQ",
     "SPY",
-    "TLT"
+    "USO",
+    "XLE",
+    "XOP"
   )
 getSymbols(tickers, src = "yahoo", from = (Sys.Date()-365*10))
 
 portfolio <-
-  cbind(AAPL$AAPL.Adjusted,
-        QQQ$QQQ.Adjusted,
-        SPY$SPY.Adjusted,
-        TLT$TLT.Adjusted)
+  cbind(SPY$SPY.Adjusted,
+        USO$USO.Adjusted,
+        XLE$XLE.Adjusted,
+        XOP$XOP.Adjusted)
 portfolio <- `names<-`(portfolio,tickers)
 portfolio <- as.data.frame(portfolio)
 

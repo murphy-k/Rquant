@@ -7,17 +7,17 @@ dte <- function(n) {
   print(expTime)
 }
 
-n <- as.Date("2019-05-17") - Sys.Date()
+n <- as.Date("2019-07-19") - Sys.Date()
 print(n)
 
 dte(n)
 
 type <- "c"
-stockPrice <- 32.39
-strikePrice <- 35
+stockPrice <- 205.34
+strikePrice <- 270
 rateInterest <- 0.00
 borrowRate <- 0.00
-impliedVol <- 0.2986
+impliedVol <- 0.54
 
 # Vanilla Pricing ####
 GBSOption(

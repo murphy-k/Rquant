@@ -1,11 +1,13 @@
 # Autoregressive Integrated Moving Average Models
 rm(list=ls())
 dev.off(dev.list())
+
 # 1.1. Load R packages
 library(forecast)
 library(tseries)
 library(quantmod)
-# 1.3. Read .CSV file
+
+
 x <- getSymbols("SPY",
            from = "2018-01-01",
            src = "yahoo",

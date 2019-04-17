@@ -4,6 +4,7 @@ library(Quandl)
 library(astsa)
 library(forecast)
 rm(list = ls(all = TRUE))
+
 # 1.1 -  initial settings including today's date and the starting date
 today <- Sys.Date()
 starting_date <- "2016-01-01"
