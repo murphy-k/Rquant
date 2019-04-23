@@ -1,5 +1,5 @@
 # ggplot2 Returns Visualizing workspace
-rm(list = ls())
+
 dev.off(dev.list()["RStudioGD"])
 library(dplyr)
 library(quantmod)
@@ -8,7 +8,7 @@ library(magrittr)
 
 # Data Download
 ticker <- "XOP"
-start_date <- "2017-01-01"
+start_date <- "2000-01-01"
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -72,6 +72,7 @@ ggplot(data = x_ret, aes(x_ret[, 1])) +
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
-z_score <- zscore(z = x_ret, p = -0.01)
+z_score <- zscore(z = x_ret, p = last(x_ret))
 z_score
 pnorm(z_score, lower.tail = TRUE)
+
