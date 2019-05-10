@@ -1,5 +1,5 @@
 # ggplot2 Returns Visualizing workspace
-
+rm(list=ls())
 dev.off(dev.list()["RStudioGD"])
 library(dplyr)
 library(quantmod)
@@ -7,8 +7,13 @@ library(ggplot2)
 library(magrittr)
 
 # Data Download
+<<<<<<< HEAD
 ticker <- "DIS"
 start_date <- "2015-01-01"
+=======
+ticker <- "SPY"
+start_date <- "2000-01-01"
+>>>>>>> ac6e859f629f42b424f83c42b89348c16cd935c3
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -26,8 +31,14 @@ chartSeries(x)
 # Convert returns to Return percentage
 x_ret <- dailyReturn(x)
 x_ret <- as.xts(x_ret)
+acf(x[,4], lag.max = 2000)
 acf(x_ret, lag.max = 100)
+<<<<<<< HEAD
 acf(x[, 4], lag.max = 100)
+=======
+mean(x_ret)
+
+>>>>>>> ac6e859f629f42b424f83c42b89348c16cd935c3
 # View instrument as a line plot
 ggplot(data = x, aes(x = Index , y = x[, 1])) +
   geom_line()
@@ -69,10 +80,15 @@ ggplot(data = x_ret, aes(x_ret[, 1])) +
   geom_vline(aes(xintercept = mean(x_ret) + (sd(x_ret) * 2))) +
   geom_vline(aes(xintercept = mean(x_ret) - (sd(x_ret) * 2)))
 
+
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
+<<<<<<< HEAD
 z_score <- zscore(z = x_ret, p = 0.0153)
+=======
+z_score <- zscore(z = x_ret, p = 0.01)
+>>>>>>> ac6e859f629f42b424f83c42b89348c16cd935c3
 z_score
 pnorm(z_score, lower.tail = FALSE)
 
