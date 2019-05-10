@@ -1,0 +1,431 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+library(quantmod)
+library(tseries)
+library(readxl)
+library(lubridate)
+library(Quandl)
+library(PerformanceAnalytics)
+library(PortfolioAnalytics)
+
+# Initital Settings
+startDate <- Sys.Date() - (365*10)
+endDate <- Sys.Date()
+```
+
+#### Index
+
+* Section I of this document will examine current capital market conditions. 
+* Section II will examine current macroeconomic conditions. 
+* Section III will discuss underlying economic theory to serve as a platform for forward looking discussion about capital markets (allocation, position sizing).
+* Section IV will contain forward looking thoughts and technical decomposition. 
+
+#### Section I
+
+Cash Equivalent - U.S. Total Money Market (T-Bills <1yr. maturity)
+
+```{r Cash}
+treasury = Quandl(
+  "USTREASURY/YIELD",
+  type = "xts",
+  collapse = "monthly",
+  start_date = startDate,
+  end_date = endDate
+)
+# Cash and Cash Equivalents as 1 month Treasury Bills annual yield
+TBill_1Month = treasury[, 1]
+TBill_1Month_ret = (TBill_1Month / 100) / 12
+colnames(TBill_1Month_ret) = "TBill_1Month_ret"
+TBill_1Month_annret = TBill_1Month / 100
+colnames(TBill_1Month_annret) = "TBill_1Month_annret"
+plot(TBill_1Month_ret,
+     main = "1 Month U.S. Treasury Bills Returns",
+     xlab = "Dates",
+     ylab = "Monthly Returns")
+table.AnnualizedReturns(TBill_1Month_ret)
+charts.PerformanceSummary(TBill_1Month_ret, main = "1 Month Treasury Bills")
+```
+
+U.S. Fixed Income - iShares Core U.S. Aggregate Bond ETF
+
+```{r AGG-Bonds}
+getSymbols("AGG",
+           src = "yahoo",
+           from = startDate,
+           to = endDate, verbose = FALSE)
+AggBonds = to.monthly(AGG)
+AggBonds = AggBonds[, 6]
+AggBonds_ret = AggBonds / Lag(AggBonds) - 1
+AggBonds_ret[is.na(AggBonds_ret)] <- 0
+colnames(AggBonds_ret) <- c("AggBonds_ret")
+AggBonds_annret = AggBonds / Lag(AggBonds, 12) - 1
+AggBonds_annret[is.na(AggBonds_annret)] <- 0
+colnames(AggBonds_annret) <- c("AggBonds_annret")
+plot(AggBonds,
+         main = "U.S. Total Bond Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(
+  AggBonds_ret,
+  main = "U.S. Total Bond Market Returns",
+  xlab = "Dates",
+  ylab = "Monthly Returns",
+  type = "h"
+)
+table.AnnualizedReturns(AggBonds_ret)
+charts.PerformanceSummary(AggBonds_ret, main = "U.S. Aggregate Bonds")
+```
+
+U.S. Short Term Bond Market iShares 1-3 Year Treasury Bond ETF
+
+```{r Short-Term-Bonds}
+getSymbols("SHY",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mshort = to.monthly(SHY)
+mshort = mshort[, 6]
+short_bond_ret = mshort / Lag(mshort) - 1
+short_bond_ret[is.na(short_bond_ret)] <- 0
+colnames(short_bond_ret) <- c("short_bond_ret")
+ashortret = mshort / Lag(mshort, 12) - 1
+ashortret[is.na(ashortret)] <- 0
+colnames(ashortret) <- c("ashortret")
+plot(mshort,
+         main = "U.S. Short Term Bond Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(
+  short_bond_ret,
+  main = "U.S. Short Term Bond Market Returns",
+  xlab = "Dates",
+  ylab = "Monthly Returns",
+  type = "h"
+)
+table.AnnualizedReturns(short_bond_ret)
+charts.PerformanceSummary(short_bond_ret, main = "1-3 Years Treasury Bonds")
+
+```
+
+U.S. Long Term Bond Market (Barclays U.S. Long Term Treasuries Index, Vanguard VUSTX Mutual Fund, U.S. Treasury Bonds with more than ten years maturity)
+
+```{r Long-Term-Bonds}
+getSymbols("VUSTX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mlong = to.monthly(VUSTX)
+mlong = mlong[, 6]
+long_bond_ret = mlong / Lag(mlong) - 1
+long_bond_ret[is.na(long_bond_ret)] <- 0
+colnames(long_bond_ret) <- c("long_bond_ret")
+alongret = mlong / Lag(mlong, 12) - 1
+alongret[is.na(alongret)] <- 0
+colnames(alongret) <- c("alongret")
+plot(mlong,
+         main = "U.S. Long Term Bond Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(long_bond_ret,
+         main = "U.S. Long Term Bond Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(long_bond_ret)
+charts.PerformanceSummary(long_bond_ret, wealth.index = FALSE, main = "10+ Years Treasury Bonds")
+```
+
+International Total Bond Market (Barclays Global Aggregate Bond Market, Invesco AUBAX Mutual Fund, International Investment Grade Bond Market)
+
+```{r Int-Bonds}
+getSymbols("AUBAX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mibonds = to.monthly(AUBAX)
+mibonds = mibonds[, 6]
+int_bonds_ret = mibonds / Lag(mibonds) - 1
+int_bonds_ret[is.na(int_bonds_ret)] <- 0
+colnames(int_bonds_ret) <- c("int_bonds_ret")
+aibondsret = mibonds / Lag(mibonds, 12) - 1
+aibondsret[is.na(aibondsret)] <- 0
+colnames(aibondsret) <- c("aibondsret")
+plot(mibonds,
+         main = "International Total Bond Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(int_bonds_ret,
+         main = "International Total Bond Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(int_bonds_ret)
+charts.PerformanceSummary(int_bonds_ret, main = "International Bonds")
+```
+
+U.S. Cash, Cash Equivalents and Fixed Income or Bond Markets Returns Comparison
+
+```{r Bonds-Comparison}
+usbondscomp = cbind(TBill_1Month_ret, short_bond_ret, AggBonds_ret, long_bond_ret)
+table.AnnualizedReturns(usbondscomp)
+charts.PerformanceSummary(usbondscomp,
+                          main = "U.S Fixed Income Returns")
+```
+
+U.S. and International Total Bond Markets Returns Comparison
+
+```{r}
+bondscomp = cbind(AggBonds_ret, int_bonds_ret)
+table.AnnualizedReturns(bondscomp)
+charts.PerformanceSummary(bondscomp, main = "U.S & International Fixed Income Return Comparison")
+```
+
+U.S. Total Stock Market (Russell 3000 Index, Vanguard VTSMX Mutual Fund)
+
+```{r}
+getSymbols("VTSMX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mstocks = to.monthly(VTSMX)
+mstocks = mstocks[, 6]
+us_tot_stock_ret = mstocks / Lag(mstocks) - 1
+us_tot_stock_ret[is.na(us_tot_stock_ret)] <- 0
+colnames(us_tot_stock_ret) <- c("us_tot_stock_ret")
+astocksret = mstocks / Lag(mstocks, 12) - 1
+astocksret[is.na(astocksret)] <- 0
+colnames(astocksret) <- c("astocksret")
+plot(mstocks,
+         main = "U.S. Total Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(us_tot_stock_ret,
+         main = "U.S. Total Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(us_tot_stock_ret)
+charts.PerformanceSummary(us_tot_stock_ret, main = "U.S. Total Stock Market")
+```
+
+U.S. Large Cap Stock Market (S&P 500 Index, Vanguard VFINX Mutual Fund)
+
+```{r}
+getSymbols("VFINX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mlarge = to.monthly(VFINX)
+mlarge = mlarge[, 6]
+large_cap_ret = mlarge / Lag(mlarge) - 1
+large_cap_ret[is.na(large_cap_ret)] <- 0
+colnames(large_cap_ret) <- c("large_cap_ret")
+alargeret = mlarge / Lag(mlarge, 12) - 1
+alargeret[is.na(alargeret)] <- 0
+colnames(alargeret) <- c("alargeret")
+plot(mlarge,
+         main = "U.S. Large Cap Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(large_cap_ret,
+         main = "U.S. Large Cap Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(large_cap_ret)
+charts.PerformanceSummary(large_cap_ret, main = "U.S. Large Cap Stock Market")
+```
+
+U.S. Small Cap Stock Market (Russell 2000 Index, Vanguard NAESX Mutual Fund)
+
+```{r}
+getSymbols("NAESX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+msmall = to.monthly(NAESX)
+msmall = msmall[, 6]
+small_cap_ret = msmall / Lag(msmall) - 1
+small_cap_ret[is.na(small_cap_ret)] <- 0
+colnames(small_cap_ret) <- c("small_cap_ret")
+asmallret = msmall / Lag(msmall, 12) - 1
+asmallret[is.na(asmallret)] <- 0
+colnames(asmallret) <- c("asmallret")
+plot(msmall,
+         main = "U.S. Small Cap Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(small_cap_ret,
+         main = "U.S. Small Cap Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(small_cap_ret)
+charts.PerformanceSummary(small_cap_ret, main = "U.S. Small Cap Stock Market")
+```
+
+U.S. Small Cap Growth Stock Market (Russell 2000 Growth Index, Vanguard VISGX Mutual Fund)
+
+```{r}
+getSymbols("VISGX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mgrowth = to.monthly(VISGX)
+mgrowth = mgrowth[, 6]
+small_cap_growth_ret = mgrowth / Lag(mgrowth) - 1
+small_cap_growth_ret[is.na(small_cap_growth_ret)] <- 0
+colnames(small_cap_growth_ret) <- c("small_cap_growth_ret")
+agrowthret = mgrowth / Lag(mgrowth, 12) - 1
+agrowthret[is.na(agrowthret)] <- 0
+colnames(agrowthret) <- c("agrowthret")
+plot(mgrowth,
+         main = "U.S. Small Cap Growth Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(small_cap_growth_ret,
+         main = "U.S. Small Cap Growth Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(small_cap_growth_ret)
+charts.PerformanceSummary(small_cap_growth_ret, main = "U.S. Small Cap Growth Market")
+```
+
+U.S. Small Cap Value Stock Market (Russell 2000 Growth Index, Vanguard VISVX Mutual Fund)
+
+```{r}
+getSymbols("VISVX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mvalue = to.monthly(VISVX)
+mvalue = mvalue[, 6]
+small_cap_value_ret = mvalue / Lag(mvalue) - 1
+small_cap_value_ret[is.na(small_cap_value_ret)] <- 0
+colnames(small_cap_value_ret) <- c("small_cap_value_ret")
+avalueret = mvalue / Lag(mvalue, 12) - 1
+avalueret[is.na(avalueret)] <- 0
+colnames(avalueret) <- c("avalueret")
+plot(mvalue,
+         main = "U.S. Small Cap Value Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(small_cap_value_ret,
+         main = "U.S. Small Cap Value Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(small_cap_value_ret)
+charts.PerformanceSummary(small_cap_value_ret, main = "U.S Small Cap Value Stock Market")
+```
+
+International Total Stock Market (MSCI International Index, Vanguard VGTSX Mutual Fund)
+
+```{r}
+getSymbols("VGTSX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mistocks = to.monthly(VGTSX)
+mistocks = mistocks[, 6]
+int_tot_stock_ret = mistocks / Lag(mistocks) - 1
+int_tot_stock_ret[is.na(int_tot_stock_ret)] <- 0
+colnames(int_tot_stock_ret) <- c("int_tot_stock_ret")
+aistocksret = mistocks / Lag(mistocks, 12) - 1
+aistocksret[is.na(aistocksret)] <- 0
+colnames(aistocksret) <- c("aistocksret")
+plot(mistocks,
+         main = "International Total Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(int_tot_stock_ret,
+         main = "International Total Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(int_tot_stock_ret)
+charts.PerformanceSummary(int_tot_stock_ret, main = "International Stock Market")
+```
+
+International Developed Stock Market (MSCI International Developed Index, Vanguard VTMGX Mutual Fund)
+
+```{r}
+getSymbols("VTMGX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+mdeveloped = to.monthly(VTMGX)
+mdeveloped = mdeveloped[, 6]
+int_developed_stock_ret = mdeveloped / Lag(mdeveloped) - 1
+int_developed_stock_ret[is.na(int_developed_stock_ret)] <- 0
+colnames(int_developed_stock_ret) <- c("int_developed_stock_ret")
+adevelopedret = mdeveloped / Lag(mdeveloped, 12) - 1
+adevelopedret[is.na(adevelopedret)] <- 0
+colnames(adevelopedret) <- c("adevelopedret")
+plot(mdeveloped,
+         main = "International Developed Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(int_developed_stock_ret,
+         main = "International Developed Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(int_developed_stock_ret)
+charts.PerformanceSummary(int_developed_stock_ret, main = "International Developed Stock Market")
+```
+
+International Emerging Stock Market (MSCI International Emerging Index, Vanguard VEIEX Mutual Fund)
+
+```{r}
+getSymbols("VEIEX",
+           src = "yahoo",
+           from = startDate,
+           to = endDate)
+memerging = to.monthly(VEIEX)
+memerging = memerging[, 6]
+int_emerging_stock_ret = memerging / Lag(memerging) - 1
+int_emerging_stock_ret[is.na(int_emerging_stock_ret)] <- 0
+colnames(int_emerging_stock_ret) <- c("int_emerging_stock_ret")
+aemergingret = memerging / Lag(memerging, 12) - 1
+aemergingret[is.na(aemergingret)] <- 0
+colnames(aemergingret) <- c("aemergingret")
+plot(memerging,
+         main = "International Emerging Stock Market Prices",
+         xlab = "Dates",
+         ylab = "Monthly Prices")
+plot(int_emerging_stock_ret,
+         main = "International Emerging Stock Market Returns",
+         xlab = "Dates",
+         ylab = "Monthly Returns", type = "h")
+table.AnnualizedReturns(int_emerging_stock_ret)
+charts.PerformanceSummary(int_emerging_stock_ret, main = "Interntational Emerging Stock Market")
+```
+
+U.S. and International Total Stock Markets Returns Comparison
+
+```{r}
+stockscomp = cbind(us_tot_stock_ret, int_tot_stock_ret)
+table.AnnualizedReturns(stockscomp)
+charts.PerformanceSummary(stockscomp, main = "US & International Stock Markets")
+```
+
+U.S. Market Cap Stock Markets Returns Comparison
+
+```{r}
+sizecomp = cbind(large_cap_ret, us_tot_stock_ret, small_cap_ret)
+table.AnnualizedReturns(sizecomp)
+charts.PerformanceSummary(sizecomp, main = "U.S. Market Cap Stock Markets")
+```
+
+U.S. Investment Style Stock Markets Returns Comparison
+
+```{r}
+stylecomp = cbind(small_cap_ret, small_cap_value_ret, small_cap_growth_ret)
+table.AnnualizedReturns(stylecomp)
+charts.PerformanceSummary(stylecomp, main = "U.S. Investment Style Stock Markets")
+```
+
+International Stock Markets Returns Comparison
+
+```{r}
+istockscomp = cbind(int_developed_stock_ret, int_tot_stock_ret, int_emerging_stock_ret)
+table.AnnualizedReturns(istockscomp)
+charts.PerformanceSummary(istockscomp, main = "International Stock Markets")
+```

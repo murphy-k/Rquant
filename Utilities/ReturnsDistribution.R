@@ -7,8 +7,8 @@ library(ggplot2)
 library(magrittr)
 
 # Data Download
-ticker <- "XOP"
-start_date <- "2000-01-01"
+ticker <- "DIS"
+start_date <- "2015-01-01"
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -27,7 +27,7 @@ chartSeries(x)
 x_ret <- dailyReturn(x)
 x_ret <- as.xts(x_ret)
 acf(x_ret, lag.max = 100)
-acf(x[,4], lag.max = 100)
+acf(x[, 4], lag.max = 100)
 # View instrument as a line plot
 ggplot(data = x, aes(x = Index , y = x[, 1])) +
   geom_line()
@@ -72,7 +72,8 @@ ggplot(data = x_ret, aes(x_ret[, 1])) +
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
-z_score <- zscore(z = x_ret, p = last(x_ret))
+z_score <- zscore(z = x_ret, p = 0.0153)
 z_score
-pnorm(z_score, lower.tail = TRUE)
+pnorm(z_score, lower.tail = FALSE)
 
+      
