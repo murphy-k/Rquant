@@ -13,10 +13,10 @@ init.portf <- '2017-12-31'
 start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 1000
+init.equity <- 10000
 enable_stops <- FALSE
-fast_sma_params <- list(n = c(2:10))
-slow_sma_params <- list(n = c(40:50))
+fast_sma_params <- list(n = c(2:9))
+slow_sma_params <- list(n = c(10:50))
 position_size <- 100
 txn_fee <- -6
 initial_stop <- 0.05
