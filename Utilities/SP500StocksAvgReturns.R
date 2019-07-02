@@ -4,14 +4,14 @@ library(tidyverse)
 library(tidyquant)
 library(janitor)
 library(plotly)
-
+library(dplyr)
 rm(list = ls())
 
 today <- Sys.Date()
 
 # subtract 3 months from the current date
-# date = today %m+% months(-3)
-date = "2019-01-01"
+date = today %m+% months(-3)
+# date = "2019-01-01"
 # pass SP500 ticker ^GSPC to tq_get function
 SP500 = tq_get("^GSPC", from = date)
 

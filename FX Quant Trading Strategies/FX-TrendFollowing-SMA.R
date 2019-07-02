@@ -44,22 +44,23 @@ fxhistoricaldata <- function(Symbol, timeframe, download = FALSE)
   return(out)
 }
 # 2.0  View FX data ####
-EURUSD <- fxhistoricaldata('EUR_USD', 'hour', download = TRUE)
+timeframe = 'hour'
+EURUSD <- fxhistoricaldata('EUR_USD', timeframe, download = TRUE)
 EURUSD$Adjusted <- EURUSD$Close
 str(EURUSD)
 
 # SMA Backtest ####
-init.portf <- start(EURUSD) - 100000
+init.portf <- start(EURUSD) - 1000000
 start.date <- start(EURUSD)
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
 enable_stops <- TRUE
-fastLength <- 10
-slowLength <- 15
+fastLength <- 2
+slowLength <- 22
 position_size <- 10000
 txn_fee <- -0.00
-initial_stop <- 0.0005
-trailing_stop <- 0.0005
+initial_stop <- 0.0015
+trailing_stop <- 0.0015
 
 # 2.3. Initialize Currency
 currency(primary_id = "USD")

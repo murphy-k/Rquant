@@ -3,13 +3,17 @@ library(forecast)
 library(ggplot2)
 library(quantmod)
 library(timeSeries)
+library(seasonal)
 rm(list = ls())
 
-getSymbols("MSFT", from = "2019-01-01")
-MSFT_ts <- ts(MSFT[, 4], frequency = 20)
-MSFT_de <- decompose(MSFT_ts, type = "multiplicative")
-autoplot(MSFT_de)
+getSymbols("SPY", from = "2018-01-01")
+SPY_ts <- ts(SPY[, 4], frequency = 20)
+SPY_de <- decompose(SPY_ts, type = "multiplicative")
+autoplot(SPY_de, main = "SPY Time Series Decomposition")
+# Work on x11 decomposition
+seas(x = SPY_ts,xreg = x11="")
 
+# Car Sales Decomposition
 getSymbols("TOTALSA", src = "FRED")
 
 sales_ts <- ts(TOTALSA, frequency = 12, start = 1976 - 01 - 01)
