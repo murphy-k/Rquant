@@ -59,5 +59,4 @@ sector_index_correlation <- function(x, window) {
     c("Sector Returns", "SPY Returns", "Sector/SPY Correlation")
   merged_xts
 }
-IT_SPY_correlation <-
-  sector_index_correlation(etf_returns$'Information Technology', 20)
+sector_index_correlation(etf_returns$`Consumer Discretionary`)

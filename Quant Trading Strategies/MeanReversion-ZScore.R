@@ -12,22 +12,23 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+start.date <- Sys.Date() - 365*10
+init.portf <- start.date -1
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
-enable_stops <- TRUE
+enable_stops <- FALSE
 initial_stop <- 0.05
 trailing_stop <- 0.07
-period <- 15
+period <- 10
 buythreshold <- -1.5
 sellthreshold <- 2.00
 position_size <- 100
 txn_fee <- -6
+
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "FB",
+  Symbols = "GLD",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -39,7 +40,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "FB",
+stock(primary_id = "GLD",
       currency = "USD",
       multiplier = 1)
 
@@ -64,12 +65,12 @@ stock(primary_id = "FB",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Ad(FB))
-kpss.test(Ad(FB))
-hurstexp(Ad(FB))
+adf.test(Ad(GLD))
+kpss.test(Ad(GLD))
+hurstexp(Ad(GLD))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Ad(FB)), lag = 1)
+diffx <- diff(log(Ad(GLD)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 adf.test(diffx)
 kpss.test(diffx)
@@ -83,17 +84,17 @@ zscore.fun <- function(x, n) {
 }
 
 # 3.2.2. Z-Score Calculation
-zscore <- zscore.fun(diff(log(Cl(FB)), lag = 1), n = period)
+zscore <- zscore.fun(diff(log(Cl(GLD)), lag = 1), n = period)
 plot.zoo(
   zscore,
   xlab = "Date",
   ylab = "Z-Score",
-  main = "FB Z-Score",
+  main = "GLD Z-Score",
   type = "h"
 )
 abline(h = sellthreshold, col = "red")
 abline(h = buythreshold, col = "green")
-abline(h = last(zscore$FB.Close), col = "blue")
+abline(h = last(zscore$GLD.Close), col = "blue")
 # 4. Initialization ####
 # 4.1. Strategy Name
 mean3.strat <- "MeanStrat3"
@@ -222,7 +223,7 @@ rm.strat(mean3.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = mean3.portf,
-          symbols = "FB",
+          symbols = "GLD",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object
@@ -275,7 +276,7 @@ chart.theme$col$dn.col <- 'white'
 chart.theme$col$dn.border <- 'lightgray'
 chart.theme$col$up.border <- 'lightgray'
 chart.Posn(Portfolio = mean3.portf,
-           Symbol = "FB",
+           Symbol = "GLD",
            theme = chart.theme)
 
 # 8.1.5. Strategy Equity Curve
@@ -285,7 +286,7 @@ plot(mean3.equity, main = "Mean3 Strategy Equity Curve")
 
 # 8.1.6. Strategy Performance Chart
 mean3.ret <- Return.calculate(mean3.equity, method = "log")
-bh.ret <- Return.calculate(FB$FB.Adjusted, method = "log")
+bh.ret <- Return.calculate(GLD$GLD.Adjusted, method = "log")
 mean3.comp <- cbind(mean3.ret, bh.ret)
 charts.PerformanceSummary(mean3.comp, main = "Mean3 Strategy Performance")
 table.AnnualizedReturns(mean3.comp)
@@ -295,7 +296,7 @@ table.AnnualizedReturns(mean3.comp)
 # 8.2.1. Strategy Maximum Adverse Excursion Chart
 chart.ME(
   Portfolio = mean3.portf,
-  Symbol = 'FB',
+  Symbol = 'GLD',
   type = 'MAE',
   scale = 'percent'
 )
@@ -303,7 +304,7 @@ chart.ME(
 # 8.2.2. Strategy Maximum Favorable Excursion Chart
 chart.ME(
   Portfolio = mean3.portf,
-  Symbol = 'FB',
+  Symbol = 'GLD',
   type = 'MFE',
   scale = 'percent'
 )
@@ -311,3 +312,4 @@ chart.ME(
 # 8.2.3. Strategy Maximum Portfolio Position
 mean3.kelly <- KellyRatio(mean3.ret, method = "half")
 mean3.kelly
+

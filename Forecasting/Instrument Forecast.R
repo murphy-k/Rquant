@@ -8,16 +8,16 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Variables Handling ####
-getSymbols("XOP",
+getSymbols("GLD",
            src = "yahoo",
            auto.assign = TRUE,
-           from = "2018-01-01")
-x <- Ad(XOP)
+           from = "2019-01-01")
+x <- Ad(GLD)
 d_x <- diff(x, na.trim=TRUE)
 
 # Create a ts object
 x_ts <-
-  ts(XOP, start = head(index(XOP), 1), end = tail(index(XOP), 1))
+  ts(GLD, start = head(index(GLD), 1), end = tail(index(GLD), 1))
 
 # Data Visualization ####
 chart_Series(x)

@@ -12,12 +12,12 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2017-12-31'
-start.date <- '2018-01-01'
+init.portf <- start.date -1
+start.date <- Sys.Date() - 365*10
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
-enable_stops <- TRUE
+enable_stops <- FALSE
 initial_stop <- 0.05
 trailing_stop <- 0.07
 period_params <- list(n = c(10,15,20))
@@ -29,7 +29,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "FB",
+  Symbols = "GLD",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -42,7 +42,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "FB",
+stock(primary_id = "GLD",
       currency = "USD",
       multiplier = 1)
 
@@ -64,12 +64,12 @@ stock(primary_id = "FB",
 # 0 < H < 0.5 (Mean Reverting)
 
 # 3.1.1. Level Time Series
-adf.test(Ad(FB))
-kpss.test(Ad(FB))
-hurstexp(Ad(FB))
+adf.test(Ad(GLD))
+kpss.test(Ad(GLD))
+hurstexp(Ad(GLD))
 
 # 3.1.2. Differentiated Time Series
-diffx <- diff(log(Ad(FB)), lag = 1)
+diffx <- diff(log(Ad(GLD)), lag = 1)
 diffx <- diffx[complete.cases(diffx)]
 
 adf.test(diffx)
@@ -85,14 +85,14 @@ zscore.fun <- function(x, n) {
 
 # 3.2.2. Z-Score Calculation
 zscore <-
-  zscore.fun(diff(log(Ad(FB)), lag = 1),
+  zscore.fun(diff(log(Ad(GLD)), lag = 1),
              n = sum((period_params$n) / (length(period_params$n))))
 plot.zoo(
-  x = FB$`FB.Adjusted`,
+  x = GLD$`GLD.Adjusted`,
   type = "l",
   xlab = "Date",
   ylab = "Price",
-  main = "FB"
+  main = "GLD"
 )
 
 plot.zoo(
@@ -102,7 +102,7 @@ plot.zoo(
   ylab = c("Z-Score ", sum((period_params$n) / (
     length(period_params$n)
   ))),
-  main = "FB"
+  main = "GLD"
 )
 abline(h = 0, col = "black")
 abline(h = 2, col = "green")
@@ -256,7 +256,7 @@ opt.mean3.portf <- "OptMeanPort3"
 rm.strat(opt.mean3.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean3.portf,
-          symbols = "FB",
+          symbols = "GLD",
           initDate = init.portf)
 # 6.2. Initialize Account Object
 initAcct(
