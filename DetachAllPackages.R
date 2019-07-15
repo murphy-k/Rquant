@@ -24,3 +24,4 @@ detachAllPackages <- function() {
 }
 
 detachAllPackages()
+(.packages())
