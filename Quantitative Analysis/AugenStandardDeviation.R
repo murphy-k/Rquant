@@ -22,9 +22,9 @@ augenSD <- function(x, n = 20) {
   return(augen_sd)
 }
 
-start_date <- "2014-01-01"
+start_date <- "2000-01-01"
 end_date <- Sys.Date()
-ticker <- "GLD"
+ticker <- "SPY"
 
 # Basic Visual ####
 x <-
