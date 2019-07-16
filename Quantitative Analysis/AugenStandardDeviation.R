@@ -33,7 +33,9 @@ asd <- augenSD(x = as.vector(Cl(x)), n = 90)
 x$augenstdev <- asd
 ggplot(data = x, aes(x = Index, y = x$augenstdev)) + geom_line()
 
-
+# Adding log difference of actual price change
+x$logdiff <- diff(x = x$SPY.Close,lag = 1,log = TRUE,na.pad = TRUE)
+ggplot(data = x, aes(x=logdiff)) + geom_histogram(bins=100)
 # tidyquant Visual ####
 spy <- tq_get("SPY", from = start_date, to = end_date)
 spy$spike <- asp
