@@ -8,38 +8,35 @@ slideapply <- function(x, n, FUN = sd) {
   }
   return(v)
 }
-augenSpike <- function(x, n = 20) {
+augenSD <- function(x, n = 20) {
   prchg <- c(NA, diff(x))
   lgchg <- c(NA, diff(log(x)))
   stdevlgchg <- slideapply(lgchg, n, sd)
   stdpr <- x * stdevlgchg
   #shuffle things up one
   stdpr <- c(NA, stdpr[-length(stdpr)])
-  spike <- prchg / stdpr
-  return(spike)
+  augen_sd <- prchg / stdpr
+  return(augen_sd)
 }
-# Basic Visual ####
-SPY <- getSymbols("SPY", auto.assign = FALSE)
-asp <- augenSpike(as.vector(Cl(SPY)))
-SPY$spike <- asp
-start_date <- "2000-01-01"
+
+start_date <- "2009-01-01"
 end_date <- Sys.Date()
-plot(
-  window(
-    SPY$spike,
-    start = start_date,
-    end = end_date,
-    type = "h",
-    main = "Augen Standard Deviation (SPY)"
-  )
-)
-plot(window(SPY$SPY.Close,
-            start = "2007-01-01",
-            end = "2008-01-01"))
+ticker <- "SPY"
+
+# Basic Visual ####
+x <-
+  getSymbols(ticker,
+             auto.assign = FALSE,
+             from = start_date,
+             to = end_date)
+asd <- augenSD(x = as.vector(Cl(x)), n = 90)
+x$augenstdev <- asd
+ggplot(data = x, aes(x = Index, y = x$augenstdev)) + geom_line()
+
 
 # tidyquant Visual ####
 spy <- tq_get("SPY", from = start_date, to = end_date)
-
+spy$spike <- asp
 spy %>%
   filter(date >= as.Date("2007-01-01") &
            date <= as.Date("2008-01-01")) %>%
@@ -51,3 +48,6 @@ spy %>%
     close = close
   )) +
   labs(title = "SPY Candlestick Chart", y = "Closing Price", x = "")
+
+
+# Viewing SD moves 
