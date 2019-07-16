@@ -155,7 +155,7 @@ bondscomp = cbind(AggBonds_ret, mibondsret)
 table.AnnualizedReturns(bondscomp)
 charts.PerformanceSummary(bondscomp, main = "U.S & International Fixed Income Return Comparison")
 
-# 2.3. Equities or Stocks
+# 2.3. Equities or Stocks ####
 
 # 2.3.1. U.S. Total Stock Market (Russell 3000 Index, Vanguard VTSMX Mutual Fund)
 getSymbols("VTSMX",
@@ -369,7 +369,7 @@ istockscomp = cbind(mdevelopedret, mistocksret, memergingret)
 table.AnnualizedReturns(istockscomp)
 charts.PerformanceSummary(istockscomp)
 
-# 2.4. Commodities
+# 2.4. Commodities ####
 
 # 2.4.1. Oil WTI Spot Price FOB (U.S. Energy Information Administration Data)
 moil = Quandl(
@@ -421,7 +421,7 @@ plot(mgoldret,
 table.AnnualizedReturns(mgoldret)
 charts.PerformanceSummary(mgoldret)
 
-# 2.5. Real Estate
+# 2.5. Real Estate ####
 
 # U.S. Real Estate Investment Trust (U.S. Real Estate Investment Trust (MSCI U.S. REIT Index), Vanguard: VGSIX Mutual Fund)
 getSymbols("VGSIX",
@@ -447,7 +447,7 @@ plot(mreitret,
 table.AnnualizedReturns(mreitret)
 charts.PerformanceSummary(mreitret)
 
-# 2.6. Currency or Foreign Exchange
+# 2.6. Currency or Foreign Exchange ####
 
 # 2.6.1. USD Broad Trade Weighted Index (Bloomberg Dollar Total Return, Federal Reserve Economic Data)
 mbroad = Quandl(
@@ -499,7 +499,7 @@ plot(mmajorret,
 table.AnnualizedReturns(mmajorret)
 charts.PerformanceSummary(mmajorret)
 
-# 2.7. Main Asset Classes Comparison
+# 2.7. Main Asset Classes Comparison ####
 assetscomp <-
   cbind(AggBonds_ret,
         mstocksret,

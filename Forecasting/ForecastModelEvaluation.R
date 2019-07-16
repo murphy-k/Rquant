@@ -8,45 +8,44 @@ library(tseries)
 library(quantmod)
 
 
-x <- getSymbols("SPY",
-           from = "2018-01-01",
+x <- getSymbols("GLD",
+           from = "2019-01-01",
            src = "yahoo",
            auto.assign = FALSE)
-x <- x$SPY.Adjusted
+x <- x$GLD.Adjusted
 x <- as.ts(x)
 h <- 20
 x_length <- length(x)
-xt_end <- length(x) - h
-xf_start <- xt_end + 1
+
 plot(
   x,
   type = "l",
-  main = "Daily SPY Prices ",
+  main = "Daily GLD Prices ",
   ylab = "Level",
   xlab = "Day"
 )
 # 1.4. Delimit training range
-xt <- window(x, start = 1, end = xt_end)
+xt <- window(x, start = 1, end = length(x) - h)
 plot(
   xt,
   type = "l",
-  main = "Daily SPY Prices Training Range",
+  main = "Daily GLD Prices Training Range",
   ylab = "Level",
   xlab = "Day"
 )
 
 # 1.5. Delimit forecasting test range
-xf <- window(x, start = xf_start)
+xf <- window(x, start = length(x) - h + 1)
 plot(
   xf,
   type = "l",
-  main = "Daily SPY Prices Forecasting Range",
+  main = "Daily GLD Prices Forecasting Range",
   ylab = "Level",
   xlab = "Day"
 )
 
 
-#########
+# Naive / RW ####
 
 # 2.1. Aritmetic Mean
 mean <- meanf(xt, h = h)
@@ -93,7 +92,7 @@ accuracy(rw1, xf)
 accuracy(srw, xf)
 accuracy(rwd, xf)
 
-##########
+# MA ####
 
 # 3.1. Simple Moving Average SMA
 sma2 <- ma(xt, 2)
@@ -153,7 +152,7 @@ plot(exp1,
      xlab = "Day")
 lines(x)
 ## Smoothing Parameters
-exp2
+exp1
 ## ets model combination not supported
 
 # 3.5. Gardner's Additive Damped Trend Method ETS(A,Ad,N)
@@ -246,7 +245,7 @@ accuracy(gardner1, xf)
 accuracy(taylor1, xf)
 accuracy(forecast(sbest, h = h), xf)
 
-##########
+# Stationarity ####
 
 # 4.1. Level Stationarity
 # Normal and Partial Autocorrelation Functions ACF & PACF
@@ -261,21 +260,21 @@ kpss.test(xt)
 plot(
   x,
   type = "l",
-  main = "Daily SPY Stock Prices",
+  main = "Daily GLD Stock Prices",
   ylab = "Level",
   xlab = "Day"
 )
 plot(
   diff(x),
   type = "l",
-  main = "Daily SPY Stock Prices Returns ",
+  main = "Daily GLD Stock Prices Returns ",
   ylab = "Returns",
   xlab = "Day"
 )
 plot(
   diff(log(x)),
   type = "l",
-  main = "Daily SPY Stock Prices Log Returns",
+  main = "Daily GLD Stock Prices Log Returns",
   ylab = "Log Returns",
   xlab = "Day"
 )
@@ -287,6 +286,7 @@ adf.test(diff(xt), alternative = "stationary")
 # Kwiatkowski-Phillips-Schmidt-Shin Test KPSS
 kpss.test(diff(xt))
 
+# ARIMA ####
 # 4.3. ARIMA Models Specification
 # Normal and Partial Autocorrelation Functions ACF & PACF
 acf(xt)
@@ -550,3 +550,4 @@ acf(residuals(abest))
 pacf(residuals(abest))
 # Ljung.Box Autocorrelation Test
 Box.test(residuals(abest), lag = 10, type = "Ljung")
+

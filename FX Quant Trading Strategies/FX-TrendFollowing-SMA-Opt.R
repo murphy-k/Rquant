@@ -51,13 +51,13 @@ str(EURUSD)
 periodicity(EURUSD)
 
 # SMA Optimization ####
-init.portf <- start(EURUSD) - 100000
+init.portf <- start(EURUSD) - 1000000
 start.date <- start(EURUSD)
 Sys.setenv(TZ = "UTC")
 init.equity <- 100000
-enable_stops <- FALSE
+enable_stops <- TRUE
 fast_sma_params <- list(n = c(2:10))
-slow_sma_params <- list(n = c(11:50))
+slow_sma_params <- list(n = c(20:50))
 position_size <- 10000
 txn_fee <- -0.00
 initial_stop <- 0.0015

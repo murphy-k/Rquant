@@ -13,8 +13,10 @@ init.portf <- '2017-12-31'
 start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 10000
+init.equity <- 100000
 enable_stops <- FALSE
+initial_stop <- 0.5
+trailing_stop <- 0.5
 period_params <- list(n = c(2:14))
 buythreshold_params <- list(threshold = c(30))
 sellthreshold_params <- list(threshold = c(70))
@@ -23,7 +25,7 @@ txn_fee <- -6
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "XOP",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -35,7 +37,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "XOP",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -43,7 +45,7 @@ stock(primary_id = "XOP",
 # Mean-Reversion Relative-Strength Strategy
 # Buy Rules = Buy when RSI < +30 Treshold
 # Sell Rules = Sell when RSI > +70 Treshold
-barChart(XOP)
+barChart(SPY)
 addRSI(n = 9)
 
 # 4. Initialization ####
@@ -105,7 +107,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoplimit',
-    threshold = 0.05,
+    threshold = initial_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -121,7 +123,7 @@ add.rule(
     sigval = TRUE,
     orderqty = 'all',
     ordertype = 'stoptrailing',
-    threshold = 0.07,
+    threshold = trailing_stop,
     orderside = 'long'
   ),
   type = 'chain',
@@ -185,7 +187,7 @@ opt.mean2.portf <- "OptMeanPort2"
 rm.strat(opt.mean2.portf)
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.mean2.portf,
-          symbols = "XOP",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.2. Initialize Account Object

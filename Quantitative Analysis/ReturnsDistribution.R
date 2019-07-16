@@ -1,14 +1,14 @@
 # ggplot2 Returns Visualizing workspace
-rm(list=ls())
+rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 library(dplyr)
 library(quantmod)
 library(ggplot2)
 library(magrittr)
 
-# Data Download
+# Data ####
 ticker <- "SPY"
-start_date <- "2000-01-01"
+start_date <- "2009-01-01"
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -18,25 +18,26 @@ getSymbols(
   warnings = FALSE
 )
 
-# Subset data
+# Subset ####
 x <-
   window(get(ticker), start = start_date, end = end_date)
 chartSeries(x)
 
-# Convert returns to Return percentage
+# Returns ####
 x_ret <- dailyReturn(x)
 x_ret <- as.xts(x_ret)
-acf(x[,4], lag.max = 2000)
+acf(x[, 4], lag.max = 2000)
 acf(x_ret, lag.max = 100)
+acf(x[, 4], lag.max = 100)
 mean(x_ret)
 
-# View instrument as a line plot
+# Stock Plot ####
 ggplot(data = x, aes(x = Index , y = x[, 1])) +
   geom_line()
 
-# View Returns as a line plot
+# Returns Line ####
 ggplot(data = x_ret, aes(x = Index , y = x_ret[, 1])) +
-  geom_line() +
+  geom_col(width = 5) +
   geom_hline(yintercept = mean(x_ret),
              color = "blue",
              linetype = "dashed") +
@@ -49,9 +50,13 @@ ggplot(data = x_ret, aes(x = Index , y = x_ret[, 1])) +
     ),
     color = "black",
     linetype = "solid"
-  )
+  ) +
+  labs(title = "SPY Daily Returns",
+       subtitle = "(With Mean/2SD)") +
+  xlab("Date") +
+  ylab("Return (%)")
 
-# View returns as a histogram
+# Returns histogram ####
 ggplot(data = x_ret, aes(x_ret[, 1])) +
   geom_histogram(
     bins = (length(x_ret) * 0.5),
@@ -69,13 +74,16 @@ ggplot(data = x_ret, aes(x_ret[, 1])) +
   geom_vline(aes(xintercept = mean(x_ret) + sd(x_ret))) +
   geom_vline(aes(xintercept = mean(x_ret) - sd(x_ret))) +
   geom_vline(aes(xintercept = mean(x_ret) + (sd(x_ret) * 2))) +
-  geom_vline(aes(xintercept = mean(x_ret) - (sd(x_ret) * 2)))
+  geom_vline(aes(xintercept = mean(x_ret) - (sd(x_ret) * 2))) +
+  labs(title = "SPY Daily Returns Distribution",
+       subtitle = "(With Mean/2SD)") +
+  xlab("Return (%)") +
+  ylab("Density")
 
-
+# Z-score ####
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 5)
 }
-z_score <- zscore(z = x_ret, p = 0.01)
+z_score <- zscore(z = x_ret, p = 0.0214)
 z_score
-pnorm(z_score, lower.tail = FALSE)
-
+pnorm(z_score, lower.tail = TRUE)

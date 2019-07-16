@@ -2,11 +2,12 @@
 library(quantmod)
 library(PortfolioAnalytics)
 library(magrittr)
+
 rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
-start.date <- "2008-01-01"
+start.date <- "2018-01-01"
 end.date <- Sys.Date()
 
 Sys.setenv(TZ = 'UTC')
@@ -47,14 +48,11 @@ suppressMessages((
     c(
       "SPY",
       "TLT",
-      "GLD",
-      "SHY",
-      "TLT",
-      "AGG",
-      "CTL",
-      "COST",
-      "HSY",
-      "LGORF"
+      "VNQ",
+      "VNQI",
+      "BND",
+      "EEM",
+      "GLD"
     ),
     src = "yahoo",
     auto.assign = TRUE,
@@ -65,58 +63,56 @@ suppressMessages((
 
 SPY <- SPY$SPY.Adjusted
 TLT <- TLT$TLT.Adjusted
+VNQ <- VNQ$VNQ.Adjusted
+VNQI <- VNQI$VNQI.Adjusted
+BND <- BND$BND.Adjusted
+EEM <- EEM$EEM.Adjusted
 GLD <- GLD$GLD.Adjusted
-AGG <- AGG$AGG.Adjusted
-CTL <- CTL$CTL.Adjusted
-COST <- COST$COST.Adjusted
-HSY <- HSY$HSY.Adjusted
-LGORF <- LGORF$LGORF.Adjusted
 
 SPY_scaled <- scale(SPY)
 TLT_scaled <- scale(TLT)
+VNQ_scaled <- scale(VNQ)
+VNQI_scaled <- scale(VNQI)
+BND_scaled <- scale(BND)
+EEM_scaled <- scale(EEM)
 GLD_scaled <- scale(GLD)
-AGG_scaled <- scale(AGG)
-CTL_scaled <- scale(CTL)
-COST_scaled <- scale(COST)
-HSY_scaled <- scale(HSY)
-LGORF_scaled <- scale(LGORF)
 
 chart_Series(SPY_scaled, name = "Comparison")
 add_TA(TLT_scaled, col = "blue", on = 1)
-add_TA(GLD_scaled, col = "gold", on = 1)
-add_TA(AGG_scaled, col = "black", on = 1)
+add_TA(VNQ_scaled, col = "gold", on = 1)
+add_TA(VNQI_scaled, col = "black", on = 1)
+add_TA(BND_scaled, col = "purple", on = 1)
+add_TA(EEM_scaled, col = "green", on = 1)
+add_TA(GLD_scaled, col = "pink", on = 1)
 
 SPY_returns <- round(dailyReturn(SPY), digits = 3) %>%
   `colnames<-`("SPY.Returns")
 TLT_returns <- round(dailyReturn(TLT), digits = 3) %>%
   `colnames<-`("TLT.Returns")
+VNQ_returns <- round(dailyReturn(VNQ), digits = 3) %>%
+  `colnames<-`("VNQ.Returns")
+VNQI_returns <- round(dailyReturn(VNQI), digits = 3) %>%
+  `colnames<-`("VNQI.Returns")
+BND_returns <- round(dailyReturn(BND), digits = 3) %>%
+  `colnames<-`("BND.Returns")
+EEM_returns <- round(dailyReturn(EEM), digits = 3) %>%
+  `colnames<-`("EEM.Returns")
 GLD_returns <- round(dailyReturn(GLD), digits = 3) %>%
   `colnames<-`("GLD.Returns")
-AGG_returns <- round(dailyReturn(AGG), digits = 3) %>%
-  `colnames<-`("AGG.Returns")
-CTL_returns <- round(dailyReturn(CTL), digits = 3) %>%
-  `colnames<-`("CTL.Returns")
-COST_returns <- round(dailyReturn(COST), digits = 3) %>%
-  `colnames<-`("COST.Returns")
-HSY_returns <- round(dailyReturn(HSY), digits = 3) %>%
-  `colnames<-`("HSY.Returns")
-LGORF_returns <- round(dailyReturn(LGORF), digits = 3) %>%
-  `colnames<-`("LGORF.Returns")
+
 
 Portfolio <-
   cbind(
     SPY_returns,
     TLT_returns,
-    GLD_returns,
-    AGG_returns,
-    CTL_returns,
-    COST_returns,
-    HSY_returns,
-    LGORF_returns
+    VNQ_returns,
+    VNQI_returns,
+    BND_returns,
+    EEM_returns,
+    GLD_returns
   )
 plot.xts(Portfolio,
-         observation.based = TRUE,
-         legend.loc = "bottom")
+         observation.based = TRUE, legend.loc = "topright")
 summary(Portfolio)
 names(Portfolio)
 # Opt Practice ####
@@ -171,22 +167,22 @@ port_spec <-
   )
 
 # Add the box constraint
-# port_spec <-
-#  add.constraint(
-#    portfolio = port_spec,
-#    type = "box",
-#    min = c(.2, .2, .2, .2, .2, .2, .2, .2),
-#    max = 0.40
-#  )
+port_spec <-
+  add.constraint(
+    portfolio = port_spec,
+    type = "box",
+    min = c(.1, .1, .1, .1, .1, .1, .1),
+    max = 0.30
+  )
 
 # Add the group constraint
-# port_spec <-
+#port_spec <-
 #  add.constraint(
 #    portfolio = port_spec,
 #    type = "group",
-#    groups = list(c(1, 2, 3, 4), c(5, 6, 7, 8)),
-#    group_min = 0.20,
-#    group_max = 0.90
+#    groups = list(c(1, 2, 3), c(4, 5, 6, 7)),
+#    group_min = 0.50,
+#    group_max = 0.70
 #  )
 
 # Print the portfolio specification object

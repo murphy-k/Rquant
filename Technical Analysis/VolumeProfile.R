@@ -1,5 +1,5 @@
 library(quantmod)
-
+library(data.table)
 getSymbols("GE", from = "2018-01-01", to = "2019-01-01")
 # 1. Volume Profile 1 ####
 # Original Function
