@@ -1,6 +1,6 @@
-library(tidyquant)
-library(timetk)
+library(tidyverse)
 library(gridExtra)
+library(timetk)
 
 rm(list = ls())
 
@@ -54,6 +54,7 @@ x$spike <- asd
 # build charts
 p_chart <- ggplot(x, aes(date, close)) +
   geom_line()
+
 p_volatility <- ggplot(x, aes(date, volatility)) + geom_line()
 
 p_augenspike <- ggplot(x, aes(date, spike)) + geom_col() +
@@ -62,7 +63,10 @@ p_augenspike <- ggplot(x, aes(date, spike)) + geom_col() +
     limits = c(-3, 6),
     breaks = c(-6, -4, -2, 0, 2, 4, 6)
   )
+
 p_logchg <- ggplot(data = x, aes(x = date, y = logchg)) + geom_col()
+
+
 # View price and volatility
 grid.arrange(p_chart, p_volatility, ncol = 1)
 # view price and augen spikes
