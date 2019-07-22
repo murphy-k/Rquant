@@ -7,22 +7,34 @@ rm(list=ls())
 tickers <-
   c(
     "SPY",
-    "USO",
-    "XLE",
-    "XOP"
+    "TLT",
+    "AG",
+    "SLV"
   )
 getSymbols(tickers, src = "yahoo", from = (Sys.Date()-365*10))
+SPY$Return <- dailyReturn(SPY$SPY.Close)
+TLT$Return <- dailyReturn(TLT$TLT.Close)
+AG$Return <- dailyReturn(AG$AG.Close)
+SLV$Return <- dailyReturn(SLV$SLV.Close)
 
 portfolio <-
   cbind(SPY$SPY.Adjusted,
-        USO$USO.Adjusted,
-        XLE$XLE.Adjusted,
-        XOP$XOP.Adjusted)
+        TLT$TLT.Adjusted,
+        AG$AG.Adjusted,
+        SLV$SLV.Adjusted)
 portfolio <- `names<-`(portfolio,tickers)
 portfolio <- as.data.frame(portfolio)
 
+ret_portfolio <-
+  cbind(SPY$Return,
+        TLT$Return,
+        AG$Return,
+        SLV$Return)
+ret_portfolio <- `names<-`(portfolio,tickers)
+ret_portfolio <- as.data.frame(portfolio)
+
 # View regular correlation matrix
-cormat <- round(cor(portfolio),2)
+cormat <- round(cor(ret_portfolio),2)
 View(cormat)
 melted_cormat <- melt(cormat)
 head(melted_cormat)
@@ -56,3 +68,4 @@ ggheatmap +
     legend.direction = "horizontal")+
   guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
                                title.position = "top", title.hjust = 0.5))
+
