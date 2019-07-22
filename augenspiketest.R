@@ -1,4 +1,7 @@
 library(quantmod)
+library(gridExtra)
+
+rm(list = ls())
 
 slideapply <- function(x, n, FUN = sd) {
   v <- c(rep(NA, length(x)))
@@ -7,7 +10,6 @@ slideapply <- function(x, n, FUN = sd) {
   }
   return(v)
 }
-
 
 augenSpike <- function(x, n = 20) {
   prchg <- c(NA, diff(x))
@@ -20,32 +22,43 @@ augenSpike <- function(x, n = 20) {
   return(spike)
 }
 
-start_date = "2005-01-01"
-end_date = "2008-01-01"
-getSymbols("SPY", from = start_date, to = end_date)
+start_date = "2000-01-01"
+end_date = Sys.Date()
+ticker <- "AAPL"
+x <-
+  getSymbols(ticker,
+             from = start_date,
+             to = end_date,
+             auto.assign = FALSE)
+x <- tk_tbl(x)
+x <- `colnames<-`(x,
+                     c("date",
+                       "open",
+                       "high",
+                       "low",
+                       "close",
+                       "volume",
+                       "adj"))
+x$logchg <- ROC(x$close)
+x$volatility <- slideapply(x$logchg, 20, sd)
+asd <- augenSpike(x = x$close)
+x$spike <- asd
 
-sp <- SPY["2005-11-02::2007-01-12"]
-asp <- augenSpike(as.vector(Cl(sp)))
-sp$spike <- asp
-barplot(
-  sp$spike,
-  main = "Augen Price Spike SPY 2011",
-  xlab = "Time Daily",
-  ylab = "Price Spike in Std Dev"
-)
+# Subset x
+x <- x %>%
+  filter(date > "2005-11-02" & date < "2007-01-13")
 
-# book example
-aub <- data.frame(c(47.58, 47.78, 48.09, 47.52, 48.47, 48.38, 49.30, 49.61, 50.03, 51.65, 51.65, 51.57, 50.60, 50.45, 50.83, 51.08, 51.26, 50.89, 50.51, 51.42, 52.09, 55.83, 55.79, 56.20))
-colnames(aub) <- c("Close")
-aub$PriceChg <- c(NA, diff(aub$Close))
-aub$LnChg <- ROC(aub$Close)
-aub$StDevLgChg<-slideapply(aub$LnChg, 20, sd)
-aub$StdDevPr <- aub$Close * aub$StDevLgChg
+p_chart <- ggplot(x, aes(date, close)) +
+  geom_line()
+p_volatility <- ggplot(x, aes(date, volatility)) + geom_line()
 
+p_augenspike <- ggplot(x, aes(date, spike)) + geom_col() +
+  scale_y_continuous(
+    name = "StDev Spike",
+    limits = c(-3, 6),
+    breaks = c(-6, -4, -2, 0, 2, 4, 6)
+  )
 
-pr <- aub$StdDevPr
-pr <- c(NA, pr[-length(pr)])
+grid.arrange(p_chart, p_volatility, ncol = 1)
+grid.arrange(p_chart, p_augenspike, ncol = 1)
 
-
-aub$Spike <- aub$PriceChg / pr
-aub

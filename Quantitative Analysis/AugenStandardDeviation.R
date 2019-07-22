@@ -1,9 +1,11 @@
 library(tidyquant)
 library(timetk)
 library(gridExtra)
+
 rm(list = ls())
 
-# Augen Standard Deviation Function ####
+# Functions ####
+# Sliding volatility calculation
 slideapply <- function(x, n, FUN = sd) {
   v <- c(rep(NA, length(x)))
   for (i in n:length(x)) {
@@ -11,101 +13,108 @@ slideapply <- function(x, n, FUN = sd) {
   }
   return(v)
 }
-augenSD <- function(x, n = 20) {
+# augen Spike calculation
+augenSpike <- function(x, n = 20) {
   prchg <- c(NA, diff(x))
   lgchg <- c(NA, diff(log(x)))
   stdevlgchg <- slideapply(lgchg, n, sd)
   stdpr <- x * stdevlgchg
-  #shuffle things up one
   stdpr <- c(NA, stdpr[-length(stdpr)])
   augen_sd <- prchg / stdpr
   return(augen_sd)
 }
 
-start_date <- "2000-01-01"
-end_date <- Sys.Date()
-ticker <- "SPY"
-
-# Basic Visual ####
+# Analysis ####
+years_back <- 3
+end_date = Sys.Date()
+start_date = end_date - 365 * years_back
+ticker <- "IBM"
 x <-
   getSymbols(ticker,
-             auto.assign = FALSE,
              from = start_date,
-             to = end_date)
-asd <- augenSD(x = as.vector(Cl(x)), n = 20)
-x$augenstdev <- asd
+             to = end_date,
+             auto.assign = FALSE)
+# coerce to tibble and rename columns
+x <- tk_tbl(x)
+x <- `colnames<-`(x,
+                  c("date",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "volume",
+                    "adj"))
+# calculate log change and sliding 1 day standard deviation
+x$logchg <- ROC(x$close)
+x$volatility <- slideapply(x$logchg, 20, sd)
+# recast price into standard deviations
+asd <- augenSpike(x = x$close)
+x$spike <- asd
 
-p_stockchart <-
-  ggplot(data = x, aes(x = Index, y = x[,4])) + geom_line()
+# build charts
+p_chart <- ggplot(x, aes(date, close)) +
+  geom_line()
+p_volatility <- ggplot(x, aes(date, volatility)) + geom_line()
 
-p_augensd <- ggplot(data = x, aes(x = Index, y = x$augenstdev)) +
-  geom_col() +
-  labs(title = "Daily Std. Dev Moves") +
-  xlab("Date") +
-  ylab("Standard Deviations")
-
-grid.arrange(p_stockchart, p_augensd, ncol = 1)
-
-ggplot(data = x_tbl, aes(x = date, y = logdiff)) + geom_line() +
-  geom_hline(aes(yintercept = mean_logdiff)) +
-  geom_hline(aes(yintercept = mean_logdiff + (sd_logdiff * 2))) +
-  geom_hline(aes(yintercept = mean_logdiff - (sd_logdiff * 2)))
-
-# Adding log difference of actual price change
-x$logdiff <- diff(
-  x = x[, 4],
-  lag = 1,
-  log = TRUE,
-  na.pad = TRUE
-)
-
-mean_logdiff <- mean(na.trim(x$logdiff))
-sd_logdiff <- sd(na.trim(x$logdiff))
-
-x_tbl <- tk_tbl(x)
-x_tbl <-
-  `colnames<-`(
-    x_tbl,
-    c(
-      "date",
-      "open",
-      "high",
-      "low",
-      "close",
-      "volume",
-      "adj",
-      "augenstdev",
-      "logdiff"
-    )
+p_augenspike <- ggplot(x, aes(date, spike)) + geom_col() +
+  scale_y_continuous(
+    name = "StDev Spike",
+    limits = c(-3, 6),
+    breaks = c(-6, -4, -2, 0, 2, 4, 6)
   )
+p_logchg <- ggplot(data = x, aes(x = date, y = logchg)) + geom_col()
+# View price and volatility
+grid.arrange(p_chart, p_volatility, ncol = 1)
+# view price and augen spikes
+grid.arrange(p_chart, p_augenspike, ncol = 1)
+# compare log changes with price spikes
+grid.arrange(p_logchg, p_augenspike, ncol = 1)
+# calculate mean and sd for log changes
+mean_logchg <- mean(na.trim(x$logchg))
+sd_logchg <- sd(na.trim(x$logchg))
+# create a column with -1 if augen spike > 2 and log change is within 2 sd.
+# a +1 if the augen spike > 2 and the log change is within 2 sd.
+# A zero otherwise. Shows us if price recast as sd move (with sliding vol) is
+# not fitting well with a normal distribution. "How well behaved is this stock?"
 
-x_tbl$outliers <-
-  ifelse(
-    x_tbl$augenstdev >= 2 &
-      x_tbl$logdiff < (mean_logdiff + (sd_logdiff * 2)),
-    1,
-    ifelse(x_tbl$augenstdev <= -2 &
-             x_tbl$logdiff > (mean_logdiff - (sd_logdiff * 2)),
-           -1,
-           0)
-  )
+x$outliers <-
+  ifelse(x$spike >= 2 &
+           x$logchg < (mean_logchg + (sd_logchg * 2)),
+         1,
+         ifelse(x$spike <= -2 &
+                  x$logchg > (mean_logchg - (sd_logchg * 2)),
+                -1,
+                0))
 
-x_tbl %>% filter(date > "2010-01-01") %>%
-  ggplot(aes(x = date, y = close, color = outliers)) +
+p_outliersChart <-
+  ggplot(x, aes(x = date, y = close, color = outliers)) +
   geom_point() +
   scale_colour_gradient(high = "red", low = "green")
+grid.arrange(p_outliersChart, p_augenspike, ncol = 1)
 
-ggplot(data = x_tbl, aes(
-  x = x_tbl$logdiff,
-  y = x_tbl$augenstdev,
+
+x$abs_sd <- abs(x$spike)
+ggplot(data = x, aes(
+  x = x$logchg,
+  y = x$abs_sd,
   col = outliers
 )) +
   geom_point() +
-  labs(title = "Daily Std.Dev Moves vs. Log Difference of Price Change") +
-  xlab("% Price Change") +
-  ylab("Standard Deviations") +
-  geom_vline(aes(xintercept = mean_logdiff + (sd_logdiff * 2))) +
-  geom_vline(aes(xintercept = mean_logdiff - (sd_logdiff * 2))) +
+  labs(title = print(paste0(ticker))) +
+  xlab("Log Change") +
+  ylab("Std Dev") +
+  geom_vline(aes(xintercept = mean_logchg + (sd_logchg * 2))) +
+  geom_vline(aes(xintercept = mean_logchg - (sd_logchg * 2))) +
   geom_hline(aes(yintercept = 2), linetype = 2) +
-  geom_hline(aes(yintercept = -2), linetype = 2)
-
+  geom_segment(aes(
+    x = 0,
+    y = 0,
+    xend = mean_logchg + (sd_logchg * 2),
+    yend = 2
+  ), color = "black") +
+  geom_segment(aes(
+    x = 0,
+    y = 0,
+    xend = mean_logchg - (sd_logchg * 2),
+    yend = 2
+  ), color = "black")
