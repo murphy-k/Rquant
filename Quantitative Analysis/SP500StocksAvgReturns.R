@@ -48,7 +48,7 @@ get_symbols = function(ticker = "AAPL") {
   df = tq_get(ticker, from = date) %>%
     mutate(symbol = rep(ticker, length(date)))
 }
-
+# Data Download ####
 # Get all the symbols and place them in a tidy dataframe
 sp500_df = map(sp500_table$Symbol, get_symbols) %>%
   bind_rows()
@@ -82,8 +82,8 @@ daily_sector = sp500_df %>%
 # View average returns top performers
 avg_return = daily_sector %>%
   group_by(security, gics_sector) %>%
-  summarise(avg_return = round(mean(daily.returns), 4),
-            Volatility = sd(daily.returns)) %>%
+  summarise(avg_return = round(mean(daily.returns*100), 4),
+            Volatility = sd(daily.returns*100)) %>%
   arrange(desc(avg_return), desc(Volatility))
 avg_return %>% head()
 
@@ -136,7 +136,7 @@ plot_ly(
   mode = 'markers+text',
   text = ~ security,
   textposition = 'middle right',
-  color = ~ gics_sector,
+  #color = ~ gics_sector,
   colors = 'Paired',
   textfont = list(size = 8)
 ) %>%
