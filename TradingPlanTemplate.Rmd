@@ -1,0 +1,105 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(quantmod)
+library(rvest)
+library(tidyverse)
+library(tidyquant)
+library(janitor)
+library(plotly)
+library(dplyr)
+library(data.table)
+library(timetk)
+```
+
+##### A Trading Plan Template
+
+I am going to make a quick trading plan template. This is just something to go off of for discretionary trading. this is an "R markdown" document. There will be snippets of R code that will all be available for copying in the discord.
+
+#### Major Markets
+
+SP500 (SPY) within 1% of it's all time high, and earnings will likely be positive - moving equities higher. Bonds (TLT) are moving lower in their short term time frame, coming off of their July 3rd high. Gold (GLD) is trading inside it's July 18th range. A breakout either way should be watched as a reaction to FED policy. The next FOMC meeting is in 6 days (7/31) with the current target rate of 225-250 bps. Fed Fund Futures are pricing in a 200-225 bps probability
+79.6%.
+
+``` {r}
+today <- Sys.Date()
+date = today %m+% months(-6)
+SPY = tq_get("SPY", from = date)
+
+SPY %>%
+  plot_ly(x = ~date, type="candlestick",
+          open = ~open, close = ~close,
+          high = ~high, low = ~low) %>%
+  layout(title = "SPY",
+         xaxis = list(rangeslider = list(visible = F)))
+```
+
+```{r}
+TLT = tq_get("TLT", from = date)
+
+TLT %>%
+  plot_ly(x = ~date, type="candlestick",
+          open = ~open, close = ~close,
+          high = ~high, low = ~low) %>%
+  layout(title = "TLT",
+         xaxis = list(rangeslider = list(visible = F)))
+```
+
+```{r}
+GLD = tq_get("GLD", from = date)
+
+GLD %>%
+  plot_ly(x = ~date, type="candlestick",
+          open = ~open, close = ~close,
+          high = ~high, low = ~low) %>%
+  layout(title = "GLD",
+         xaxis = list(rangeslider = list(visible = F)))
+```
+
+### Watchlist
+
+This is where I will list stocks that I am looking at in order to test a trading idea. A good starting watch list would be stocks with earnings.
+
+* Jul 25/b:		CMCSA	BUD	TOT	AZN	MMM	ABEV	BMY	TMUS	
+* Jul 25/a:		AMZN	GOOGL	GOOG	INTC	SBUX	SYK	AFL	FISV
+
+So after the market closes, AMZN is going to post earnings - which they usually beat, so this is one to watch long. We can define some simple parameters (the less the better, degrees of freedom!) and test a trading idea. 
+
+### Trading System
+
+A simple strategy that would theoretically perform well in an uptrend might be: 
+
+If today’s low is greater than the low of one day ago then buy the next open and hold for one day and sell at the open. More intuitively, if Tuesday's low is higher than Monday's low then buy Wednesday's open and sell at the open on Thursday. 
+
+Let's test this quickly. 
+
+``` {r}
+ticker  <- "AMZN"
+df <- getSymbols(ticker, auto.assign = FALSE, from = date)
+
+df$Signal <- df[, 3] > shift(df[, 3], n = 1)
+df$Returns <-
+  shift(df[, 1], n = 2, type = "lead") - shift(df[, 1], n = 1, type = "lead")
+df$Results <- df$Signal * df$Returns
+df$bh <- df[, 4] - shift(df[, 4])
+df <- na.trim(df)
+df$Equity <- cumsum(df$Results)
+df$HoldEquity <- cumsum(df$bh)
+
+df_tbl <- tk_tbl(df)
+ggplot(df_tbl, aes(index)) +
+geom_line(aes(y = HoldEquity, col = "Buy and Hold Equity")) +
+geom_line(aes(y = Equity, col = "Strategy Equity")) + labs(
+title = paste("Strategy Equity vs. Buy and Hold:", ticker),
+caption = paste("Today:", Sys.Date())
+) + xlab("Date") + ylab("Return")
+
+```
+
+This trading strategy has performed well in the middle of march to middle of may uptrend - but did not beat buy and hold. There was better drawdown avoidance in the down trend however (the strategy only wants to get long for a day after higher lows). So that's today's trading plan. If AMZN has a higher low today than yesterday, I will buy the open tomorrow and sell it on the open on Monday. 
+
+This plan can be extended - but that is the basic thought process. It's not complicated. I will probably add more complicated trading system evaluations.
+
