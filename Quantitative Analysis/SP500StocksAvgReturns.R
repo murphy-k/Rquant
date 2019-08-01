@@ -5,13 +5,17 @@ library(tidyquant)
 library(janitor)
 library(plotly)
 library(dplyr)
+
+Sys.setenv("plotly_username"="murphy-k")
+Sys.setenv("plotly_api_key"="OUdMTfG3WkNoGLtWC6AK")
+
 rm(list = ls())
 
 today <- Sys.Date()
 
 # subtract 3 months from the current date
-date = today %m+% months(-3)
-# date = "2019-01-01"
+#date = today %m+% months(-3)
+date = "2019-01-01"
 # pass SP500 ticker ^GSPC to tq_get function
 SP500 = tq_get("^GSPC", from = date)
 
@@ -48,6 +52,7 @@ get_symbols = function(ticker = "AAPL") {
   df = tq_get(ticker, from = date) %>%
     mutate(symbol = rep(ticker, length(date)))
 }
+
 # Data Download ####
 # Get all the symbols and place them in a tidy dataframe
 sp500_df = map(sp500_table$Symbol, get_symbols) %>%
@@ -65,10 +70,13 @@ sp500_df %>%
   select("Total Number of Tickers" = n)
 
 # Viewing an individual ticker's price history
+ticker <- "JWN"
 sp500_df %>%
-  filter(symbol == !!"AAPL") %>%
+  filter(symbol == !!ticker) %>%
   ggplot(aes(date, adjusted)) +
-  geom_line()
+  geom_line() + labs(title = paste("Daily Chart:", ticker)) +
+  xlab("Date") +
+  ylab("Price")
 
 # Converting the price history to returns
 daily_sector = sp500_df %>%
@@ -106,7 +114,7 @@ avg_return %>%
   ggplot(aes(reorder(security, -avg_return), avg_return, fill = avg_return)) +
   geom_col() +
   coord_flip() +
-  labs(title = "Highest Average Return",
+  labs(title = "Lowest Average Return",
        x = "Security",
        y = "Average Return") +
   theme_classic() +
@@ -119,7 +127,7 @@ returns_plot <- avg_return %>%
   geom_text(aes(label = security, color = gics_sector),
             size = 3,
             show.legend = FALSE) +
-  labs(title = "Average Return vs Volatility In SP500",
+  labs(title = "Average Return vs. Volatility (SP500)",
        x = "Average Return",
        subtitle = paste("Data Start:", date)) +
   guides(color = guide_legend("Sector",
@@ -128,7 +136,7 @@ returns_plot <- avg_return %>%
 returns_plot
 
 
-plot_ly(
+p <- plot_ly(
   avg_return,
   x = ~ avg_return,
   y = ~ Volatility,
@@ -141,7 +149,8 @@ plot_ly(
   textfont = list(size = 8)
 ) %>%
   layout(
-    title = 'Average Return vs Volatility In SP500 (Past 3 Months)',
+    title = paste('Average Return vs Volatility (SP500)' ,date, "to", Sys.Date()),
     xaxis = list(title = 'Average Return', zeroline = TRUE),
-    yaxis = list(title = 'Volatility')
+    yaxis = list(title = 'Volatility', zeroline = TRUE)
   )
+api_create(p, filename = "SP500 Avg.Returns vs. St Dev")
