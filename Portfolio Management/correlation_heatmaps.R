@@ -7,29 +7,29 @@ rm(list=ls())
 tickers <-
   c(
     "SPY",
-    "TLT",
-    "AG",
-    "SLV"
+    "AAPL",
+    "USO",
+    "TNX"
   )
 getSymbols(tickers, src = "yahoo", from = (Sys.Date()-365*10))
 SPY$Return <- dailyReturn(SPY$SPY.Close)
-TLT$Return <- dailyReturn(TLT$TLT.Close)
-AG$Return <- dailyReturn(AG$AG.Close)
-SLV$Return <- dailyReturn(SLV$SLV.Close)
+AAPL$Return <- dailyReturn(AAPL$AAPL.Close)
+USO$Return <- dailyReturn(USO$USO.Close)
+TNX$Return <- dailyReturn(TNX$TNX.Close)
 
 portfolio <-
   cbind(SPY$SPY.Adjusted,
-        TLT$TLT.Adjusted,
-        AG$AG.Adjusted,
-        SLV$SLV.Adjusted)
+        AAPL$AAPL.Adjusted,
+        USO$USO.Adjusted,
+        TNX$TNX.Adjusted)
 portfolio <- `names<-`(portfolio,tickers)
 portfolio <- as.data.frame(portfolio)
 
 ret_portfolio <-
   cbind(SPY$Return,
-        TLT$Return,
-        AG$Return,
-        SLV$Return)
+        AAPL$Return,
+        USO$Return,
+        TNX$Return)
 ret_portfolio <- `names<-`(portfolio,tickers)
 ret_portfolio <- as.data.frame(portfolio)
 

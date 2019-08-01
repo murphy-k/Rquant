@@ -5,8 +5,8 @@ library(tidyquant)
 library(janitor)
 
 today <- Sys.Date()
-# date = today %m+% years(-3)
-date = "2019-01-01"
+date = today %m+% years(-3)
+#date = "2019-01-01"
 # pass SP500 ticker ^GSPC to tq_get function
 SP500 = tq_get("^GSPC", from = date)
 SP500 %>%
