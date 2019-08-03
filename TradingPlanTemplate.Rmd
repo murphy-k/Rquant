@@ -26,7 +26,7 @@ SP500 (SPY) within 1% of it's all time high, and earnings will likely be positiv
 
 ``` {r}
 today <- Sys.Date()
-date = today %m+% months(-6)
+date = today %m+% months(-12)
 SPY = tq_get("SPY", from = date)
 
 SPY %>%
