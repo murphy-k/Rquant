@@ -26,7 +26,7 @@ SP500 (SPY) within 1% of it's all time high, and earnings will likely be positiv
 
 ``` {r}
 today <- Sys.Date()
-date = today %m+% months(-12)
+date = today %m+% months(-18)
 SPY = tq_get("SPY", from = date)
 
 SPY %>%
@@ -77,10 +77,10 @@ If today’s low is greater than the low of one day ago then buy the next open a
 Let's test this quickly. 
 
 ``` {r}
-ticker  <- "AMZN"
+ticker  <- "QQQ"
 df <- getSymbols(ticker, auto.assign = FALSE, from = date)
 
-df$Signal <- df[, 3] > shift(df[, 3], n = 1)
+df$Signal <- df[, 4] >= shift(df[, 3], n = 1)
 df$Returns <-
   shift(df[, 1], n = 2, type = "lead") - shift(df[, 1], n = 1, type = "lead")
 df$Results <- df$Signal * df$Returns

@@ -139,9 +139,9 @@ lmfb <- predict.train(lmtb,newdata=rspyf)
 lmfb <- xts(lmfb,order.by=as.Date(names(lmfb)))
 
 # 6.1.3. Linear Regression Testing Charts
-plot(rspyf[,1],type="l",main="Linear Regression A Testing Chart")
+plot(rspyf[,1],type="h",main="Linear Regression A Testing Chart")
 lines(lmfa,col="blue")
-plot(rspyf[,1],type="l",main="Linear Regression B Testing Chart")
+plot(rspyf[,1],type="h",main="Linear Regression B Testing Chart")
 lines(lmfb,col="green")
 
 # 6.1.4. Linear Regression Forecasting Accuracy
@@ -156,13 +156,27 @@ accuracy(lmftsb,rspyfts)
 
 # 6.2.1. Elastic Net Regression Training
 penlmsa <- Sys.time()
-penlmta <- train(rspy~rspy1+rspy2+rspy5,data=rspyt,method="penalized",trControl=tsctrlt)
+penlmta <-
+  train(
+    rspy ~ rspy1 + rspy2 + rspy5,
+    data = rspyt,
+    method = "penalized",
+    trControl = tsctrlt
+  )
 penlmea <- Sys.time()
-penlmea-penlmsa
+penlmea - penlmsa
+
 penlmsb <- Sys.time()
-penlmtb <- train(rspy~rspy1+rspy2+rspy3+rspy4+rspy5+rspy6+rspy7+rspy8+rspy9,data=rspyt,method="penalized",preProcess="pca",trControl=tsctrlt)
+penlmtb <-
+  train(
+    rspy ~ rspy1 + rspy2 + rspy3 + rspy4 + rspy5 + rspy6 + rspy7 + rspy8 + rspy9,
+    data = rspyt,
+    method = "penalized",
+    preProcess = "pca",
+    trControl = tsctrlt
+  )
 penlmeb <- Sys.time()
-penlmeb-penlmsb
+penlmeb - penlmsb
 
 # Elastic Net Regression Optimal Training Parameters
 penlmta$bestTune
@@ -226,9 +240,9 @@ knnfb <- cbind(index(rspyf),as.data.frame(knnfb))
 knnfb <- xts(knnfb[,2],order.by=as.Date(knnfb[,1]))
 
 # 7.1.3. KNN Regression Testing Charts
-plot(rspyf[,1],type="l",main="KNN Regression A Testing Chart")
+plot(rspyf[,1],type="h",main="KNN Regression A Testing Chart")
 lines(knnfa,col="blue")
-plot(rspyf[,1],type="l",main="KNN Regression B Testing Chart")
+plot(rspyf[,1],type="h",main="KNN Regression B Testing Chart")
 lines(knnfb,col="green")
 
 # 7.1.4. KNN Regression Forecasting Accuracy
@@ -244,13 +258,26 @@ accuracy(knnftsb,rspyfts)
 
 # 8.1.1. DT Training
 dtsa <- Sys.time()
-dtta <- train(rspy~rspy1+rspy2+rspy5,data=rspyt,method="rpart2",trControl=tsctrlt)
+dtta <-
+  train(
+    rspy ~ rspy1 + rspy2 + rspy5,
+    data = rspyt,
+    method = "rpart2",
+    trControl = tsctrlt
+  )
 dtea <- Sys.time()
-dtea-dtsa
+dtea - dtsa
 dtsb <- Sys.time()
-dttb <- train(rspy~rspy1+rspy2+rspy3+rspy4+rspy5+rspy6+rspy7+rspy8+rspy9,data=rspyt,method="rpart2",preProcess="pca",trControl=tsctrlt)
+dttb <-
+  train(
+    rspy ~ rspy1 + rspy2 + rspy3 + rspy4 + rspy5 + rspy6 + rspy7 + rspy8 + rspy9,
+    data = rspyt,
+    method = "rpart2",
+    preProcess = "pca",
+    trControl = tsctrlt
+  )
 dteb <- Sys.time()
-dteb-dtsb
+dteb - dtsb
 
 # DT Regression Optimal Training Parameters
 dtta$bestTune
