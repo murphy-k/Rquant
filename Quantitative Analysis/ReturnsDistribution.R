@@ -8,7 +8,7 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Data ####
-ticker <- "KPTI"
+ticker <- "VEEV"
 start_date <- "2000-01-01"
 end_date <- Sys.Date()
 getSymbols(
@@ -33,14 +33,14 @@ mean_x_ret <- round(mean(x_ret), digits = 4) * 100
 sd_x_ret <- round(sd(x_ret), digits = 4) * 100
 
 # Stock Plot ####
-p_price <- ggplot(data = x, aes(x = Index , y = x$KPTI.Close)) +
+p_price <- ggplot(data = x, aes(x = Index , y = x$VEEV.Close)) +
   geom_line() +
   labs(title = paste(ticker, "Daily Stock Price")) +
   xlab("Date") +
   ylab("Price ($)") +
   scale_y_log10() +
   geom_hline(
-    yintercept = last(x$KPTI.Close),
+    yintercept = last(x$VEEV.Close),
     color = "black",
     linetype = "dashed"
   )
@@ -98,8 +98,8 @@ zscore <- function(z, p) {
 
 # Calculating likelihood of hitting a certain strike. 
 logchg <- round(last(x_ret), 4)
-price <- last(KPTI$KPTI.Close)
-strike <- 9.00
+price <- 159
+strike <- 170
 
 chg <- round(1 - (price / strike), digits = 4)
 print(paste("To hit your strike, price must change", chg * 100, "%"))
@@ -114,3 +114,4 @@ print(paste("Observations < z-score:", 100 - (prob * 100), "%"))
 
 # number of days in the dataset
 as.Date(index(x_ret[1,])) - Sys.Date()
+
