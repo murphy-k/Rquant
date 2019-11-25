@@ -8,11 +8,11 @@ library(tseries)
 library(quantmod)
 
 
-x <- getSymbols("GLD",
+x <- getSymbols("SPY",
            from = "2019-01-01",
            src = "yahoo",
            auto.assign = FALSE)
-x <- x$GLD.Adjusted
+x <- x$SPY.Adjusted
 x <- as.ts(x)
 h <- 20
 x_length <- length(x)
@@ -20,7 +20,7 @@ x_length <- length(x)
 plot(
   x,
   type = "l",
-  main = "Daily GLD Prices ",
+  main = "Daily SPY Prices ",
   ylab = "Level",
   xlab = "Day"
 )
@@ -29,7 +29,7 @@ xt <- window(x, start = 1, end = length(x) - h)
 plot(
   xt,
   type = "l",
-  main = "Daily GLD Prices Training Range",
+  main = "Daily SPY Prices Training Range",
   ylab = "Level",
   xlab = "Day"
 )
@@ -39,7 +39,7 @@ xf <- window(x, start = length(x) - h + 1)
 plot(
   xf,
   type = "l",
-  main = "Daily GLD Prices Forecasting Range",
+  main = "Daily SPY Prices Forecasting Range",
   ylab = "Level",
   xlab = "Day"
 )
@@ -260,21 +260,21 @@ kpss.test(xt)
 plot(
   x,
   type = "l",
-  main = "Daily GLD Stock Prices",
+  main = "Daily SPY Stock Prices",
   ylab = "Level",
   xlab = "Day"
 )
 plot(
   diff(x),
   type = "l",
-  main = "Daily GLD Stock Prices Returns ",
+  main = "Daily SPY Stock Prices Returns ",
   ylab = "Returns",
   xlab = "Day"
 )
 plot(
   diff(log(x)),
   type = "l",
-  main = "Daily GLD Stock Prices Log Returns",
+  main = "Daily SPY Stock Prices Log Returns",
   ylab = "Log Returns",
   xlab = "Day"
 )

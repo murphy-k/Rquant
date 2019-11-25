@@ -1,35 +1,22 @@
-# Pricing Options
+# Options Pricing
 library(fOptions)
-
 
 dte <- function(n) {
   expTime <<- as.numeric(n / 365)
   print(expTime)
 }
 
-
-n <- as.Date("2019-07-19") - Sys.Date()
+n <- as.Date("2019-08-23") - Sys.Date()
 print(n)
+dte(1)
 
-dte(70)
-
+# Construct the options contract
 type <- "c"
-stockPrice <- 25.5
-strikePrice <- 26
+stockPrice <- 157
+strikePrice <- 147
 rateInterest <- 0.00
 borrowRate <- 0.00
-impliedVol <- 0.2867
-n <- as.Date("2019-05-10") - Sys.Date()
-print(n)
-
-dte(2)
-
-type <- "c"
-stockPrice <- 138
-strikePrice <- 136
-rateInterest <- 0.00
-borrowRate <- 0.00
-impliedVol <- 0.53
+impliedVol <- 0.0
 
 # Vanilla Pricing ####
 GBSOption(
@@ -52,4 +39,4 @@ GBSGreeks(
   r = rateInterest,
   b = borrowRate,
   sigma = impliedVol
-)  
+)

@@ -20,5 +20,5 @@ ggplot(data = GDP, aes(Index, pct_chg)) +
 
 
 fit <- auto.arima(GDP$pct_chg)
-autoplot(forecast(fit, h = 1))
+autoplot(forecast(fit, h = 4))
 plot(hist(GDP$pct_chg))

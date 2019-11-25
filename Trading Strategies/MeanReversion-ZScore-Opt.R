@@ -12,8 +12,8 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- start.date -1
 start.date <- Sys.Date() - 365*10
+init.portf <- start.date -1
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
