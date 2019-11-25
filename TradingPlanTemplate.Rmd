@@ -80,7 +80,7 @@ Let's test this quickly.
 ticker  <- "QQQ"
 df <- getSymbols(ticker, auto.assign = FALSE, from = date)
 
-df$Signal <- df[, 4] >= shift(df[, 3], n = 1)
+df$Signal <- df[, 3] >= shift(df[, 3], n = 1)
 df$Returns <-
   shift(df[, 1], n = 2, type = "lead") - shift(df[, 1], n = 1, type = "lead")
 df$Results <- df$Signal * df$Returns

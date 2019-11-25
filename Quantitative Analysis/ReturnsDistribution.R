@@ -8,7 +8,11 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Data ####
+<<<<<<< HEAD
 ticker <- "SPY"
+=======
+ticker <- "AMZN"
+>>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
 start_date <- "2000-01-01"
 end_date <- Sys.Date()
 getSymbols(
@@ -26,6 +30,7 @@ x <-
 
 # Returns ####
 x_ret <- dailyReturn(x, type = "log")
+dailyReturn
 x_ret <- as.xts(x_ret)
 acf(x_ret, lag.max = sqrt(length(x_ret)))
 
@@ -33,14 +38,22 @@ mean_x_ret <- round(mean(x_ret), digits = 4) * 100
 sd_x_ret <- round(sd(x_ret), digits = 4) * 100
 
 # Stock Plot ####
+<<<<<<< HEAD
 p_price <- ggplot(data = x, aes(x = Index , y = x$SPY.Close)) +
+=======
+p_price <- ggplot(data = x, aes(x = Index , y = x$AMZN.Close)) +
+>>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
   geom_line() +
   labs(title = paste(ticker, "Daily Stock Price")) +
   xlab("Date") +
   ylab("Price ($)") +
   scale_y_log10() +
   geom_hline(
+<<<<<<< HEAD
     yintercept = last(x$SPY.Close),
+=======
+    yintercept = last(x$AMZN.Close),
+>>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
     color = "black",
     linetype = "dashed"
   )
@@ -98,8 +111,13 @@ zscore <- function(z, p) {
 
 # Calculating likelihood of hitting a certain strike. 
 logchg <- round(last(x_ret), 4)
+<<<<<<< HEAD
 price <- last(SPY$SPY.Close)
 strike <- 9.00
+=======
+price <- 1786.40
+strike <- 1800.00
+>>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
 
 chg <- round(1 - (price / strike), digits = 4)
 print(paste("To hit your strike, price must change", chg * 100, "%"))
@@ -114,3 +132,4 @@ print(paste("Observations < z-score:", 100 - (prob * 100), "%"))
 
 # number of days in the dataset
 as.Date(index(x_ret[1,])) - Sys.Date()
+
