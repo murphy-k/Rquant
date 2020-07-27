@@ -9,22 +9,22 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2007-12-31'
-start.date <- '2008-01-01'
-end.date <- Sys.Date()
+init.portf <- '2015-12-31'
+start.date <- '2016-01-01'
+end.date <- '2019-12-31'
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
-enable_stops <- FALSE
+enable_stops <- TRUE
 fast_sma_params <- list(n = c(2:9))
 slow_sma_params <- list(n = c(10:30))
 position_size <- 100
-txn_fee <- -6
+txn_fee <- -2.50
 initial_stop <- 0.05
 trailing_stop <- 0.07
 
 # 2.2. Data Downloading
 getSymbols(
-  Symbols = "BABA",
+  Symbols = "SPY",
   src = "yahoo",
   from = start.date,
   to = end.date,
@@ -36,7 +36,7 @@ getSymbols(
 currency(primary_id = "USD")
 
 # 2.4.Initialize Stock Instrument
-stock(primary_id = "BABA",
+stock(primary_id = "SPY",
       currency = "USD",
       multiplier = 1)
 
@@ -204,7 +204,7 @@ rm.strat(opt.trend1.portf)
 
 # 6.3. Initialize Portfolio Object
 initPortf(name = opt.trend1.portf,
-          symbols = "BABA",
+          symbols = "SPY",
           initDate = init.portf)
 
 # 6.4. Initialize Account Object

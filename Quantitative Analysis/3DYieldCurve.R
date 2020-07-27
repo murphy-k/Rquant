@@ -7,7 +7,6 @@ library(purrr)
 library(quantmod)
 library(magrittr)
 
-
 # get yields from St. Louis Fed FRED
 yield_curve <- list("DTB3", "DGS2", "DGS5", "DGS10", "DGS30") %>%
   map(
@@ -15,24 +14,26 @@ yield_curve <- list("DTB3", "DGS2", "DGS5", "DGS10", "DGS30") %>%
   ) %>%
   do.call(merge,.)
 
+yield_curve <- na.omit(yield_curve)
+
 # create our 3d surface yield curve
-yield_curve["1980::"] %>%
+yield_curve["2020::"] %>%
   # convert to numeric matrix
   data.matrix() %>% 
   # transpose
   t() %>%
   # draw our Plotly 3d surface
   plot_ly(
-    x=as.Date(index(yield_curve["1980::"])),
+    x=as.Date(index(yield_curve["2020::"])),
     y=c(0.25,2,5,10,30),
     z=.,
     type="surface"
   ) %>%
   plotly::layout(
     scene=list(
-      xaxis=list(title="date"),
-      yaxis=list(title="term"),
-      zaxis=list(title="yield")
+      xaxis=list(title=""),
+      yaxis=list(title="Term"),
+      zaxis=list(title="Yield(%)")
     )
   )
 

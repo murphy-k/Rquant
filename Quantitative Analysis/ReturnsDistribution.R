@@ -8,12 +8,8 @@ rm(list = ls())
 dev.off(dev.list()["RStudioGD"])
 
 # Data ####
-<<<<<<< HEAD
-ticker <- "SPY"
-=======
-ticker <- "AMZN"
->>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
-start_date <- "2000-01-01"
+ticker <- "^GSPC"
+start_date <- "1950-01-01"
 end_date <- Sys.Date()
 getSymbols(
   ticker,
@@ -30,7 +26,6 @@ x <-
 
 # Returns ####
 x_ret <- dailyReturn(x, type = "log")
-dailyReturn
 x_ret <- as.xts(x_ret)
 acf(x_ret, lag.max = sqrt(length(x_ret)))
 
@@ -38,22 +33,15 @@ mean_x_ret <- round(mean(x_ret), digits = 4) * 100
 sd_x_ret <- round(sd(x_ret), digits = 4) * 100
 
 # Stock Plot ####
-<<<<<<< HEAD
-p_price <- ggplot(data = x, aes(x = Index , y = x$SPY.Close)) +
-=======
-p_price <- ggplot(data = x, aes(x = Index , y = x$AMZN.Close)) +
->>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
+
+p_price <- ggplot(data = x, aes(x = Index , y = x$GSPC.Close)) +
   geom_line() +
-  labs(title = paste(ticker, "Daily Stock Price")) +
+  labs(title = paste("SP500")) +
   xlab("Date") +
   ylab("Price ($)") +
   scale_y_log10() +
   geom_hline(
-<<<<<<< HEAD
-    yintercept = last(x$SPY.Close),
-=======
-    yintercept = last(x$AMZN.Close),
->>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
+    yintercept = last(x$GSPC.Close),
     color = "black",
     linetype = "dashed"
   )
@@ -102,22 +90,32 @@ p_hist <- ggplot(data = x_ret, aes((x_ret[, 1]) * 100)) +
   ylab("Density")
 p_hist
 
-gridExtra::grid.arrange(p_price, p_returns_line, ncol = 1)
+gridExtra::grid.arrange(p_price, p_hist, ncol = 1)
 
 # Z-score ####
 zscore <- function(z, p) {
   round(((p - mean(z)) / sd(z)), digits = 3)
 }
 
-# Calculating likelihood of hitting a certain strike. 
+z <- zscore(x_ret, last(x_ret))
+
+# The function pnorm returns the integral from −∞ to q of the pdf of the normal
+# distribution where q is a Z-score.
+p_ <-
+  pnorm(
+    q = z,
+    mean = mean_x_ret,
+    sd = sd_x_ret,
+    lower.tail = TRUE
+  ) %>% round(5)
+
+print(paste(p_ * 100, "% of observations since", start_date, "have been lower"))
+
+
+# Calculating likelihood of hitting a certain strike.
 logchg <- round(last(x_ret), 4)
-<<<<<<< HEAD
-price <- last(SPY$SPY.Close)
-strike <- 9.00
-=======
-price <- 1786.40
-strike <- 1800.00
->>>>>>> f3c42cfb5f9b7c4c6468c5328687ea52997b509b
+price <- last(GSPC$GSPC.Close)
+strike <- 3000
 
 chg <- round(1 - (price / strike), digits = 4)
 print(paste("To hit your strike, price must change", chg * 100, "%"))
@@ -131,5 +129,5 @@ print(paste("Observations > z-score:",
 print(paste("Observations < z-score:", 100 - (prob * 100), "%"))
 
 # number of days in the dataset
-as.Date(index(x_ret[1,])) - Sys.Date()
-
+as.Date(index(x_ret[1, ])) - Sys.Date()
+length(x_ret)

@@ -15,7 +15,7 @@ today <- Sys.Date()
 
 # subtract 3 months from the current date
 #date = today %m+% months(-3)
-date = "2019-01-01"
+date = "2020-06-01"
 # pass SP500 ticker ^GSPC to tq_get function
 SP500 = tq_get("^GSPC", from = date)
 
@@ -55,13 +55,13 @@ get_symbols = function(ticker = "AAPL") {
 
 # Data Download ####
 # Get all the symbols and place them in a tidy dataframe
-sp500_df = map(sp500_table$Symbol, get_symbols) %>%
+sp500_df_map = map(sp500_table$Symbol, get_symbols) %>%
   bind_rows()
 
-sp500_df = sp500_df %>%
+sp500_df = sp500_df_map %>%
   left_join(sp500_table, by = c('symbol' = 'Symbol')) %>%
   clean_names() %>%
-  select(date:security, gics_sector, gics_sub_industry)
+  select(date,symbol, adjusted,security, gics_sector, gics_sub_industry)
 
 sp500_df %>%
   select(symbol) %>%
@@ -70,7 +70,7 @@ sp500_df %>%
   select("Total Number of Tickers" = n)
 
 # Viewing an individual ticker's price history
-ticker <- "JWN"
+ticker <- "EW"
 sp500_df %>%
   filter(symbol == !!ticker) %>%
   ggplot(aes(date, adjusted)) +
