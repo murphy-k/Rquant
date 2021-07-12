@@ -9,9 +9,9 @@ dev.off(dev.list()["RStudioGD"])
 
 # 2. Setup ####
 # 2.1. Initial Settings
-init.portf <- '2015-12-31'
-start.date <- '2016-01-01'
-end.date <- '2019-12-31'
+init.portf <- "2000-12-31"
+start.date <- "2001-01-01"
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE

@@ -1,0 +1,154 @@
+---
+title: 'ECON-6390 HW#3'
+author: "Kyle Murphy"
+date: "3/1/2021"
+output: html_document
+---
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(margins)
+library(readxl)
+options(scipen = 999, digits = 3)
+```
+
+## Loan Default Rates
+Due by end of the day on March 1st 2021
+
+"You will use the file “HW 3 Data.xlsx” provided in the Homework 3 Folder of your Blackboard course page to complete the following tasks and answer the following questions. This file contains data on loans made by a bank from 2002-2009. The data set includes variables about the loan recipient, as well as information on the loan amount, whether the recipient defaulted on the loan, and whether the loan recipient had previously received a loan from the bank. A description of the variables is given on the second tab of the excel file."
+
+
+#### "1. Estimate a linear probability model (LPM) model where the default indicator variable is a function of the loan recipient’s fico score, sex, income, age, and net assets. Present the results in a table. Describe the results, and emphasize any results that are counter to what you would expect."
+
+```{r}
+HW_3_Data <- read_excel("~/Downloads/HW 3 Data.xlsx")
+```
+
+```{r}
+# Linear Model [1]
+lpm1 <- lm(default ~ fico + female + income + age + net_assets, data = HW_3_Data)
+summary(lpm1, robust='HC1')
+```
+
+A one unit increase in 'fico' the probability of default increases by 0.0004. Being female decreases the probability of default by 0.0002, but the t-value is extremely tiny, so there is likely no difference in the sexes. A one unit (1,000 USD) increase in income lowers probability of default by 0.0023. Each additional year of age increases the probability of default by 0.0019 and each single unit (1,000 USD) increase in net assets lowers probability of default by 0.003.
+
+I did not expect negative coefficients for fico, income, or net assets. It's counter intuitive that those with higher demonstrated proclivity to repay debts, that are better capitalized with stronger cash flow increase probability of default. Something is wrong, here (and I don't like it).
+
+#### "2. Estimate the same LPM, but include loan size as an additional explanatory variable. Present the results of this estimation in a table side-by-side with the results from Question 1. How do the results compare?"¶
+
+```{r}
+# Linear Model [2]
+lpm2 <- lm(default ~ fico + female + income + age + net_assets + loan_size, data = HW_3_Data)
+summary(lpm2, robust = 'HC1')
+```
+ 
+
+The coefficient for 'fico' changed to a negative and it's t-value dropped severely as well with the introduction of the variable 'loan_size' into the equation. Sex is still inconsequential (seemingly) and the magnitude of the negative coefficient for 'income' increased slightly. The coefficient for 'age' remains unchanged and the same for 'net_assets'. The introduction of the variable 'loan_size' shows that for every one unit increase in the loan size (USD) the probability of default increases by -0.00000415. I thought this was interesting. My hunch is that smaller loans are more likely to default because in order to qualify for a larger loan one would presumably have demonstrated they are likely to repay it. I don't know, though.
+
+
+#### "3. Using the model from Question 2, what are the marginal effects of the following changes on the probability of default:"
+
+* Increasing income by 1,000 USD
+* Increasing fico credit score by 1 point
+* Increasing age of the loan recipient by 1 year
+
+Increasing income by a single unit (1,000 USD) shows a reduction of 0.0027 for the probability of default. Increasing the fico credit score by a single point decreases the probability of default by 0.00002. Increasing the age of the loan recipient by a single year increases the probability of default by 0.0019.
+
+
+#### "4. Estimate logit and probit models using the same dependent and explanatory variables as in Question 2. Present the coefficients of these models side by side in a table and describe the results."
+
+```{r}
+# Logit Model
+logit <- glm(default ~ fico + female + income + age + net_assets + loan_size,
+    data = HW_3_Data,
+    family = "binomial"
+  )
+summary(logit, robust = 'HC1')
+```
+
+*Logit Model*
+
+Increasing income by a single unit (1,000 USD) shows a reduction of 0.1701 in the log-odds for the 'default' variable being equal to 1. Increasing the fico credit score by a single unit decreases the log-odds of default by 0.0044. Increasing the age of the loan recipient by a single year increases the log-odds of default by 0.0198. 
+
+```{r}
+# Probit Model
+probit <- glm(default ~ fico + female + income + age + net_assets + loan_size,
+    data = HW_3_Data,
+    family = binomial(link='probit')
+  )
+summary(probit, robust='HC1')
+```
+
+*Probit Model*
+
+Increasing income by a single unit (1,000 USD) lowers the z-score by -0.0603. Increasing the fico credit score by a single point lowers the z-score by 0.0022. Increasing the age of the loan recipient by a single year increases the z-score by 0.0136.
+
+#### "5. Using the logit and probit models, what are the marginal effects of the following changes on the probability of default: use the marginal effect at the mean values for all explanatory variables"
+
+![Marginal Effects At The Mean in Python.](/Users/kyle/Desktop/Screen Shot 2021-03-01 at 9.19.00 PM.png)
+
+#### 6.Repeat  the same  exercise  as  question  5  (calculate  the  marginal  effect  of  the  same  three changes  for  both  the  logit  and  probit  models), but  use  the mean marginal  effect of  the data.
+
+
+```{r}
+# Average Marginal Effects [Logit]
+marg1 <- margins(logit)
+summary(marg1)
+```
+
+Increasing income by $1,000 decreasing the chance of default by 0.35%. Increasing the fico score by one point decreases the chance of default by 0.01%. Increasing the age of increases the chance of default by 0.04%.
+
+```{r}
+# Average Marginal Effects [Probit]
+marg2 <- margins(probit)
+summary(marg2)
+```
+
+Increasing income by $1,000 decreasing the chance of default by 0.30%. Increasing the fico score by one point decreases the chance of default by 0.01%. Increasing the age of increases the chance of default by 0.07%. 
+
+#### 7.Imagine you are the loan officer for a bank. An individual, Person A, requests a loan of $50,000. Person A is approved for the loan, which is for one year and has an interest rate of 10% (in one year the individual will pay the bank $55,000), yielding aprofit of $5,000 for the bankif the loan is repaid. Person A has income of $75,000, is male, has a credit score of 600, is 60 years old, and has net assets equal to $200,000. Calculate the estimated probability  of  default  for  this  individual  using  LPM,  logit  and  probit  models.  Given theprobability of default, what does each model say is the expected profitto the bank from this loan?[Hint: Your answer depends on how you specify expected profit. There is more than one single way to do this; it depends on what you assume happens when an individual defaults. Make sure you are explicit in the assumptions you are making here.]
+
+```{r}
+data <- with(HW_3_Data,
+                 data.frame(id = c('A','B'),
+                            fico = c(600,600),
+                            female = c(0,0),
+                            income = c(75,72),
+                            age = c(60,60),
+                            net_assets = c(200,200),
+                            loan_size = c(50000,50000)))
+data$LPM_default_pct <- (predict(lpm2, newdata=data, type = "response")) * 100
+data$Logit_default_pct <- (predict(logit, newdata = data, type = "response"))* 100
+data$Probit_default_pct <- (predict(probit, newdata=data, type = "response"))* 100
+data[c(1,8:10)]
+```
+
+If the expected profit is 5,000 USD when default is 0, then the probability of default multiplied by the total profit should yield the expected value of the profit given a percentage default likelihood. 
+
+Person A E[Profit|Model]:
+
+LPM:    10.6% default * 5000 = $4,470
+
+Logit:   3.5% default * 5000 = $4,823
+
+Probit:  6.6% default * 5000 = $4,667
+
+Person B E[Profit|Model]:
+
+LPM:    11.5% default * 5000 = $4,425
+
+Logit:   5.74% default * 5000 = $4,713
+
+Probit:  9.34% default * 5000 = $4,533
+
+
+Taking the average expected profit for all three models for each person...
+
+Person A: $4653.33
+
+Person B: $4557.00
+
+To bring up the expected profit from person B to match person A;
+set the difference between the two equal zero and solve for the interest on a 50,000 loan.
+The interest rate that should be applied to person B is 10.21%

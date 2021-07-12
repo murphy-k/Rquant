@@ -13,7 +13,7 @@ init.portf <- '2017-12-31'
 start.date <- '2018-01-01'
 end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
-init.equity <- 100000
+init.equity <- 10000
 enable_stops <- FALSE
 initial_stop <- 0.5
 trailing_stop <- 0.5

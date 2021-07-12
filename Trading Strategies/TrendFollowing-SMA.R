@@ -11,16 +11,16 @@ dev.off(dev.list()["RStudioGD"])
 # 2.1. Initial Settings
 init.portf <- "2000-12-31"
 start.date <- "2001-01-01"
-end.date <- '2019-12-31'
+end.date <- Sys.Date()
 Sys.setenv(TZ = "UTC")
 init.equity <- 10000
 enable_stops <- TRUE
-fastLength <- 5
-slowLength <- 20
+fastLength <- 2
+slowLength <- 12
 position_size <- 100
 txn_fee <- -2.50
-initial_stop <- 0.05
-trailing_stop <- 0.05
+initial_stop <- 0.10
+trailing_stop <- 0.15
 
 # 2.2. Data Downloading
 getSymbols(
